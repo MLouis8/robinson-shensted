@@ -1,5 +1,5 @@
 from Permutation import Permutation
-from RS_Fomin_permutations import roby_insertion
+from RS_Fomin_permutations import roby_insertion, evacuation
 from RS_suites_extraites import robinson_schensted
 
 testV1 = [3, 8, 4, 1, 2]
@@ -17,3 +17,7 @@ perm1 = Permutation([2, 7, 1, 5, 6, 4, 3])
 p1, q1 = [[7, 6, 5, 2], [3, 4, None, 1]], [[2, 6, 5, 1], [3, 7, None, 4]]
 
 assert roby_insertion(perm1) == (p1, q1)
+
+p1_tilda = [[3, 5, 7, 1], [4, 6, None, 2]]
+
+print(evacuation(p1))
