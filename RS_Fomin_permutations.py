@@ -1,6 +1,11 @@
 from Permutation import Permutation
 
 def roby_insertion(perm):
+    """Computes the Roby insertion algorithm on a permutation
+
+    >>> roby_insertion(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    ([[7, 6, 5, 2], [3, 4, None, 1]], [[2, 6, 5, 1], [3, 7, None, 4]])
+    """
     p, q = [[], []], [[], []]
     for k in perm._get_keys:
         e = perm[k]
@@ -40,8 +45,11 @@ def insert(e, key, p, q, id_c):
             q[1][id_c] = key
 
 def evacuation(p):
-    """
+    """Returns P, the path table from the involution table. 
     Attention on suppose ici que p[0][0] contienne le nombre d'elements de p
+
+    >>> evacuation([[7, 6, 5, 2], [3, 4, None, 1]])
+    [[3, 5, 7, 1], [4, 6, None, 2]]
     """
     p_transformed = [[None]*len(p[0]), [None]*len(p[1])]
     for i in range(p[0][0]):

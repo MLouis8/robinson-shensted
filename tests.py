@@ -9,6 +9,8 @@ testC2 = [[2], [3]]
 testV3 = 'acdbaedbc'
 testC3 = [['a', 'a', 'b', 'c'], ['b', 'd', 'd'], ['c', 'e']]
 
+print(Permutation(t))
+
 assert robinson_schensted(testV1) == testC1
 assert robinson_schensted(testV2) == testC2
 assert robinson_schensted(testV3) == testC3
