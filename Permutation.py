@@ -19,5 +19,13 @@ class Permutation:
             print(self._permu_matrix[i])
 
     @property
-    def _get_keys(self):
+    def size(self):
+        return len(self._permu_dict.keys())
+
+    @property
+    def keys(self):
         return self._permu_dict.keys()
+
+    @property
+    def matrix(self):
+        return self._permu_matrix

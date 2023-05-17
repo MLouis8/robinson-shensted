@@ -1,6 +1,7 @@
 from Permutation import Permutation
-from RS_Fomin_permutations import roby_insertion, evacuation
+from RS_Fomin_permutations import roby_insertion, evacuation, permu_to_growth_diagram
 from RS_suites_extraites import robinson_schensted
+import numpy as np
 
 testV1 = [3, 8, 4, 1, 2]
 testC1 = [[1, 2], [3, 4], [8]]

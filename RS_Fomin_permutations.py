@@ -1,4 +1,5 @@
 from Permutation import Permutation
+import numpy as np
 
 def roby_insertion(perm):
     """Computes the Roby insertion algorithm on a permutation
@@ -7,7 +8,7 @@ def roby_insertion(perm):
     ([[7, 6, 5, 2], [3, 4, None, 1]], [[2, 6, 5, 1], [3, 7, None, 4]])
     """
     p, q = [[], []], [[], []]
-    for k in perm._get_keys:
+    for k in perm.keys:
         e = perm[k]
         insert(e, k, p, q, 0)
     return p, q
@@ -77,3 +78,48 @@ def find_evac_point(p):
     tmp = p[0][j]
     x, y = compare_neighbors(0, j, p)
     return tmp, x, y
+
+def fomin_rules_reversed(g_diagram, i, j, p):
+    mu1, mu2, lmbda = g_diagram[i+1, j], g_diagram[i, j+1], g_diagram[i+1, j+1]
+    if lmbda == mu1:
+        if lmbda == mu2:
+            return lmbda, False
+        return mu2, False
+    if lmbda == mu2:
+        return mu1, False
+    w = 33333 # tronquer le premier digit
+    if w == mu1:
+        return w, True
+    return w, False
+
+def fomin_rules(g_diagram, i, j, p):
+    mu1, mu2, nu = g_diagram[i, j-1], g_diagram[i-1, j], g_diagram[i-1, j-1]
+    if mu1 == nu:
+        if mu2 == nu:
+            if p[j]==i:
+                return 1 if nu==0 else nu + 10**(int(np.log10(nu+1))+1)
+            return nu
+        return mu2
+    if mu2 == nu:
+        return mu1
+    return 2 if nu == 0 else nu + 2*10**(int(np.log10(nu+1))+1)
+
+def permu_to_y_f_path(permutation):
+    """Returns (P1, Q1), paths in the YF graphs, using Fomin's algorithm
+    """
+    g_diagram = permu_to_growth_diagram(permutation)
+    return gd[:, -1], gd[-1, :]
+
+def permu_to_growth_diagram(permutation):
+    """Creates growth diagram from permutation
+    """
+    g_diagram = np.zeros((permutation.size+1, permutation.size+1), dtype=int)
+    for i in range(1, permutation.size+1):
+        for j in range(1, permutation.size+1):
+            g_diagram[i, j] = fomin_rules(g_diagram, i, j, permutation)
+    return g_diagram
+
+def growth_diagram_to_permu(g_diagram):
+    """Create permutation from growth diagram
+    """
+    pass
