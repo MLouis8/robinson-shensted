@@ -79,7 +79,7 @@ def find_evac_point(p):
     x, y = compare_neighbors(0, j, p)
     return tmp, x, y
 
-def fomin_rules_reversed(g_diagram, i, j, p):
+def fomin_rules_reversed(g_diagram, i, j):
     mu1, mu2, lmbda = g_diagram[i+1, j], g_diagram[i, j+1], g_diagram[i+1, j+1]
     if lmbda == mu1:
         if lmbda == mu2:
@@ -87,7 +87,7 @@ def fomin_rules_reversed(g_diagram, i, j, p):
         return mu2, False
     if lmbda == mu2:
         return mu1, False
-    w = 33333 # tronquer le premier digit
+    w = 0 if lmbda == 1 or lmbda == 2 else int(str(lmbda)[1:])
     if w == mu1:
         return w, True
     return w, False
@@ -97,21 +97,31 @@ def fomin_rules(g_diagram, i, j, p):
     if mu1 == nu:
         if mu2 == nu:
             if p[j]==i:
-                return 1 if nu==0 else nu + 10**(int(np.log10(nu+1))+1)
+                return 1 if nu==0 else int('1'+ str(nu))
             return nu
         return mu2
     if mu2 == nu:
         return mu1
-    return 2 if nu == 0 else nu + 2*10**(int(np.log10(nu+1))+1)
+    return 2 if nu == 0 else int('2'+ str(nu))
 
 def permu_to_y_f_path(permutation):
     """Returns (P1, Q1), paths in the YF graphs, using Fomin's algorithm
     """
     g_diagram = permu_to_growth_diagram(permutation)
-    return gd[:, -1], gd[-1, :]
+    return g_diagram[:, -1], g_diagram[-1, :]
 
 def permu_to_growth_diagram(permutation):
     """Creates growth diagram from permutation
+
+    >>> permu_to_growth_diagram(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    array([[   0,    0,    0,    0,    0,    0,    0,    0],
+           [   0,    0,    0,    1,    1,    1,    1,    1],
+           [   0,    1,    1,    2,    2,    2,    2,    2],
+           [   0,    1,    1,    2,    2,    2,    2,   12],
+           [   0,    1,    1,    2,    2,    2,   12,   22],
+           [   0,    1,    1,    2,   12,   12,   22,  212],
+           [   0,    1,    1,    2,   12,  112,  212,  222],
+           [   0,    1,   11,   21,   22,  212, 2112, 2212]])
     """
     g_diagram = np.zeros((permutation.size+1, permutation.size+1), dtype=int)
     for i in range(1, permutation.size+1):
@@ -119,7 +129,33 @@ def permu_to_growth_diagram(permutation):
             g_diagram[i, j] = fomin_rules(g_diagram, i, j, permutation)
     return g_diagram
 
-def growth_diagram_to_permu(g_diagram):
-    """Create permutation from growth diagram
+def paths_to_growth_diagram(p1, p2):
+    """Creates a growth diagram and a Permutation from a pair of paths in the Y-F lattice
     """
-    pass
+    n = len(p1)
+    g_diagram = np.zeros((n, n), dtype=int)
+    g_diagram[:, -1] = p1
+    g_diagram[-1, :] = p2
+    t = [0] * (n-1)
+    for i in range(n-2, -1, -1):
+        for j in range(n-2, -1, -1):
+            g_diagram[i, j], x = fomin_rules_reversed(g_diagram, i, j)
+            if x:
+                t[j] = i+1
+    return g_diagram, Permutation(t)
+
+
+def paths_to_permu(p1, p2):
+    """Creates permutation from a pair of paths in the Y-F lattice
+    """
+    return
+
+def g_diagram_to_path_tables(g_diagram):
+    """Computes P~ and Q~ from growth diagram
+    """
+    return
+
+def reversed_evacuation(p_tilda):
+    """Return p the involution table from p~, the path table
+    """
+    return
