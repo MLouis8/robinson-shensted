@@ -20,4 +20,4 @@ assert roby_insertion(perm1) == (p1, q1)
 
 p1_tilda = [[3, 5, 7, 1], [4, 6, None, 2]]
 
-print(evacuation(p1))
+assert evacuation(p1) == p1_tilda
