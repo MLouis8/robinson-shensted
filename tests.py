@@ -27,3 +27,5 @@ assert evacuation(p1) == p1_tilda
 
 p1, p2 = permu_to_y_f_path(perm1)
 #print(paths_to_growth_diagram(p1, p2))
+
+print(int(np.log10(12)) == int(np.log10(18)))
