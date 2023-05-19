@@ -152,16 +152,14 @@ def paths_to_permu(p1, p2):
     return
 
 def compare_pred(a, b, k, l):
-    print('here', a, b, k, l)
-    print(f"a[k]: {a[k]}; b[k]: {b[k]}")
     match a[k]:
         case 1:
-            if b[k] == 2 or b[k] == 0: #ajout d'un 1
+            if b[l] == 2 or b[l] == 0: #ajout d'un 1
                 a[k] = 0
                 return 0, k, a
             return compare_pred(a, b, k+1, l+1)
         case 2:
-            if b[k] == 1 or b[k] == 0: #transformation d'un 1
+            if b[l] == 1 or b[l] == 0: #transformation d'un 1
                 a[k] = 1
                 return 1, k, a
             else:
@@ -170,12 +168,14 @@ def compare_pred(a, b, k, l):
 
 def compute_path_table(p):
     """Returns path table from path
+
+    >>> compute_path_table([0, 1, 2, 12, 22, 212, 222, 2212])
+    [[3, 5, 7, 1], [4, 6, None, 2]]
     """
     act = [int(i) for i in str(p[-1])]
-    tab = [[None]* len(p), [None]* len(p)]
+    tab = [[None]* len(act), [None]* len(act)]
     s = sum(act)
-    for k in range(-2, -len(p), -1):
-        print(f"round {k}")
+    for k in range(-2, -len(p)-1, -1):
         i, j, act = compare_pred(act, [int(h) for h in str(p[k])], 0, 0)
         tab[i][j] = s
         s -= 1
