@@ -1,5 +1,5 @@
 from Permutation import Permutation
-from RS_Fomin_permutations import roby_insertion, evacuation, permu_to_growth_diagram, paths_to_growth_diagram, permu_to_y_f_path
+from RS_Fomin_permutations import roby_insertion, evacuation, permu_to_growth_diagram, paths_to_growth_diagram, permu_to_y_f_path, compute_path_table
 from RS_suites_extraites import robinson_schensted
 import numpy as np
 
@@ -28,4 +28,4 @@ assert evacuation(p1) == p1_tilda
 p1, p2 = permu_to_y_f_path(perm1)
 #print(paths_to_growth_diagram(p1, p2))
 
-print(int(np.log10(12)) == int(np.log10(18)))
+print(compute_path_table(p1))

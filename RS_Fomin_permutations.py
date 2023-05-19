@@ -151,17 +151,35 @@ def paths_to_permu(p1, p2):
     """
     return
 
+def compare_pred(a, b, k, l):
+    print('here', a, b, k, l)
+    print(f"a[k]: {a[k]}; b[k]: {b[k]}")
+    match a[k]:
+        case 1:
+            if b[k] == 2 or b[k] == 0: #ajout d'un 1
+                a[k] = 0
+                return 0, k, a
+            return compare_pred(a, b, k+1, l+1)
+        case 2:
+            if b[k] == 1 or b[k] == 0: #transformation d'un 1
+                a[k] = 1
+                return 1, k, a
+            else:
+                return compare_pred(a, b, k+1, l+1)
+    return compare_pred(a, b, k+1, l)
+
 def compute_path_table(p):
     """Returns path table from path
     """
-    t = [[1], []]
-    for i in range(1, len(p)):
-        for c in len(str(p[i])):
-            if str(p[i])[c] != str(p[i-1])[c]:
-                if str(p[i])[c] == 1: #rajout d'un 1
-                    t[0][]
-                else: #transformation d'un 1 en un 2
-    return t
+    act = [int(i) for i in str(p[-1])]
+    tab = [[None]* len(p), [None]* len(p)]
+    s = sum(act)
+    for k in range(-2, -len(p), -1):
+        print(f"round {k}")
+        i, j, act = compare_pred(act, [int(h) for h in str(p[k])], 0, 0)
+        tab[i][j] = s
+        s -= 1
+    return tab
 
 
 def reversed_evacuation(p_tilda):
