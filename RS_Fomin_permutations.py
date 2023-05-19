@@ -145,11 +145,11 @@ def paths_to_growth_diagram(p1, p2):
     return g_diagram, Permutation(t)
 
 
-def paths_to_permu(p1, p2):
-    """Creates permutation from a pair of paths in the Y-F lattice
-    (version opti sans stockage du gd)
-    """
-    return
+# def paths_to_permu(p1, p2):
+#     """Creates permutation from a pair of paths in the Y-F lattice
+#     (version opti sans stockage du gd)
+#     """
+#     return
 
 def compare_pred(a, b, k, l):
     match a[k]:
@@ -180,9 +180,3 @@ def compute_path_table(p):
         tab[i][j] = s
         s -= 1
     return tab
-
-
-def reversed_evacuation(p_tilda):
-    """Return p the involution table from p~, the path table
-    """
-    return
