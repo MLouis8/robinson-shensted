@@ -2,7 +2,17 @@ import numpy as np
 
 class Permutation:
     def __init__(self, t):
-        #self.check_init(t)
+        def check_init(t):
+            mem = []
+            for i in t:
+                if not isinstance(i, int):
+                    raise TypeError("Values must be integers.")
+                if i > len(t) or i < 1:
+                    raise ValueError("Permutation not valid. Values must be within [1, len(array)].")
+                if i in mem:
+                    raise ValueError("Permutation not valid. Values must appear once.")
+                mem.append(i)
+        check_init(t)
         m = min(t)
         self._permu_dict = {}
         self._permu_matrix = np.zeros((len(t), len(t)))
