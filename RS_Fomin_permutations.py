@@ -124,7 +124,7 @@ def paths_to_growth_diagram(p1: list, p2: list) -> tuple[list, Permutation]:
     """Reverse Fomin's algorithm.
     Relation: Young-Fibonacci lattice paths (p1, p2) -> growth diagram g_diagram, Permutaion p
     """
-    def g_diagram_rules_reversed(g_diagram, i, j):
+    def g_diagram_rules_reversed(g_diagram: list, i: int, j: int) -> tuple[int, bool]:
         mu1, mu2, lmbda = g_diagram[i+1, j], g_diagram[i, j+1], g_diagram[i+1, j+1]
         if lmbda == mu1:
             if lmbda == mu2:
