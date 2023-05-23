@@ -12,10 +12,30 @@ def check_young_fibo_path(p):
     for i in range(1, len(p)):
         act = str(p[i])
         if len(act) == len(prev): #le premier 1 fut remplace par un deux
-            for c in act:
-                pass
+            flag = False
+            for k, c in enumerate(act):
+                if prev[k] != 1 and prev[k] != 2:
+                    raise ValueError("Numbers must be 1 or 2.")
+                if prev[k] != c:
+                    if flag or prev[k] == 2:
+                        raise ValueError("The path doesn't respect lattice rules.")
+                    flag = True
         else: #insertion d'un 1 quelque part
-            pass
+            cpt_1_act, cpt_1_prev, cpt_2_act, cpt_2_prev = 0, 0, 0, 0
+            for k, c in enumerate(act):
+                if c == 1:
+                    cpt_1_act += 1
+                elif c == 2:
+                    cpt_2_act += 1
+                if prev[k] == 1:
+                    cpt_1_prev += 1
+                elif prev[k] == 2:
+                    cpt_2_prev += 1
+                else:
+                    raise ValueError("Numbers must be 1 or 2.")
+            if cpt_2_act != cpt_2_prev or cpt_1_prev + 1 != cpt_1_act:
+                raise ValueError("The path doesn't respect lattice rules.")
+                
 
 def check_young_fibo_paths(p1, p2):
     check_young_fibo_path(p1)
