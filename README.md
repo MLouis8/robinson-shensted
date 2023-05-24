@@ -1,6 +1,6 @@
 # robinson-shensted
 
-Quelques algo autour de la correspondance de Young-Fibonnacci.
+Quelques algo autour de la correspondance de Young-Fibonnacci:
 
 - Algorithme de Robinson Schensted classique.
 
@@ -10,7 +10,7 @@ Quelques algo autour de la correspondance de Young-Fibonnacci.
 
 - Création d'un diagramme de croissance à partir d'une permutation (Fomin)
 
-- Algorithme inverser, construisant un diagramme de croissance et une permutation à partir d'une paire de chemin dans le graphe de Young-Fibonacci
+- Algorithme inverse, construisant un diagramme de croissance et une permutation à partir d'une paire de chemin dans le graphe de Young-Fibonacci
 
 - Construction du "path tableau" à partir d'un chemin dans le graphe de Young-Fibonacci
 

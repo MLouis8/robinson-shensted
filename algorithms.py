@@ -4,6 +4,8 @@ import numpy as np
 
 Involution = Tuple[List[int], List[int]]
 Tableau = Tuple[List[int], List[int]]
+S_Tableau = Tuple[List[int], List[int]]
+Chain = List[int]
 
 def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     """Roby's Insertion algorithm.
@@ -51,7 +53,7 @@ def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     return inv1, inv2
 
 def evacuation(inv: Involution) -> Tableau:
-    """Roby's evacuation algorithm.
+    """Killpatrick's evacuation algorithm.
     Relation: Involution inv -> path tableau
     
     Attention on suppose ici que p[0][0] contienne le nombre d'elements de p
@@ -85,6 +87,76 @@ def evacuation(inv: Involution) -> Tableau:
         path_tableau[x][y] = e
     return path_tableau
 
+def compute_path_tableau(p: Chain) -> Tableau:
+    """Computes path tableau
+    Relation: Young-Fibonacci lattice chain p -> path tableau tab
+
+    >>> compute_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
+    ([3, 5, 7, 1], [4, 6, 0, 2])
+    """
+    def path_tableau_rules(a: List[int], b: List[int], k: int, l: int) -> Tuple[int, int, List[int]]:
+        match a[k]:
+            case 1:
+                if b[l] == 2 or b[l] == 0: #ajout d'un 1
+                    a[k] = 0
+                    return 0, k, a
+                return path_tableau_rules(a, b, k+1, l+1)
+            case 2:
+                if b[l] == 1 or b[l] == 0: #transformation d'un 1
+                    a[k] = 1
+                    return 1, k, a
+                else:
+                    return path_tableau_rules(a, b, k+1, l+1)
+        return path_tableau_rules(a, b, k+1, l)
+    act = [int(i) for i in str(p[-1])]
+    tab: Tableau = ([0]* len(act), [0]* len(act))
+    s = sum(act)
+    for k in range(-2, -len(p)-1, -1):
+        i, j, act = path_tableau_rules(act, [int(h) for h in str(p[k])], 0, 0)
+        tab[i][j] = s
+        s -= 1
+    return tab
+
+def permu_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
+    """Returns pair of chains in the Young-Fibonacci lattice from a permutation, optimized version.
+    Relation: Permutation perm -> Young-Fibonacci lattice chains (p, q)
+
+    >>> permu_to_chains(Permutation([3, 1, 4, 2]))
+    ([0, 1, 2, 12, 22], [0, 1, 11, 21, 22])
+
+    >>> permu_to_chains(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    ([0, 1, 11, 21, 22, 212, 2112, 2212], [0, 1, 2, 12, 22, 212, 222, 2212])
+    """
+    def compute_fibo_node(dg: np.ndarray) -> int:
+        def list_to_int(l: List[int]) -> int:
+            res = 0
+            for i, e in enumerate(l):
+                res += e * 10**(len(l) - i-1)
+            return int(res)
+        res_list: List[int] = []
+        pts = np.argwhere(dg)
+        while(pts.size > 0):
+            id_c, id_l = np.argmax(pts[:, 1]), np.argmax(pts[:, 0])
+            column_ele, line_ele = pts[id_c], pts[id_l]
+            mask = np.ones(pts.shape[0], dtype=bool)
+            mask[id_c] = False
+            if np.all(column_ele == line_ele):
+                res_list.append(1)
+            else:
+                res_list.append(2)
+                mask[id_l] = False
+            pts = pts[mask]
+        return list_to_int(res_list)
+    p: List[int] = [0] * (perm.size+1)
+    q: List[int] = [0] * (perm.size+1)
+    p[1], q[1] = 1, 1
+    p[-1] = compute_fibo_node(perm.matrix)
+    q[-1] = p[-1]
+    for i in range(perm.size, 1, -1):
+        p[i] = compute_fibo_node(perm.matrix[:, :i])
+        q[i] = compute_fibo_node(perm.matrix[:i, :])
+    return p, q
+
 def permu_to_growth_diagram(p: Permutation) -> np.ndarray:
     """Fomin's algorithm.
     Relation: permutation p -> growth diagram g_diagram
@@ -117,18 +189,18 @@ def permu_to_growth_diagram(p: Permutation) -> np.ndarray:
             g_diagram[i, j] = g_diagram_rules(g_diagram, i, j, p)
     return g_diagram
 
-def permutation_to_paths_gd(p: Permutation) -> Tuple[np.ndarray, np.ndarray]:
-    """Fomin's algorithm to obtain pair of paths in the Young-Fibonacci lattice from permutation.
+def permutation_to_chains_gd(p: Permutation) -> Tuple[Chain, Chain]:
+    """Fomin's algorithm to obtain pair of chains in the Young-Fibonacci lattice from permutation.
     This version uses the growth diagram.
 
-    Relation: permutation p -> Young-Fibonacci lattice paths (path1, path2)
+    Relation: permutation p -> Young-Fibonacci lattice chains (chain1, chain2)
     """
     g_diagram: np.ndarray = permu_to_growth_diagram(p)
-    return g_diagram[:, -1], g_diagram[-1, :]
+    return g_diagram[:, -1].tolist(), g_diagram[-1, :].tolist()
 
-def paths_to_growth_diagram(p1: List[int], p2: List[int]) -> Tuple[np.ndarray, Permutation]:
+def chains_to_growth_diagram(c1: Chain, c2: Chain) -> Tuple[np.ndarray, Permutation]:
     """Reverse Fomin's algorithm.
-    Relation: Young-Fibonacci lattice paths (p1, p2) -> growth diagram g_diagram, Permutaion p
+    Relation: Young-Fibonacci lattice chains (c1, c2) -> growth diagram g_diagram, Permutaion p
     """
     def g_diagram_rules_reversed(g_diagram: np.ndarray, i: int, j: int) -> Tuple[int, bool]:
         mu1, mu2, lmbda = g_diagram[i+1, j], g_diagram[i, j+1], g_diagram[i+1, j+1]
@@ -142,10 +214,10 @@ def paths_to_growth_diagram(p1: List[int], p2: List[int]) -> Tuple[np.ndarray, P
         if w == mu1:
             return w, True
         return w, False
-    n = len(p1)
+    n = len(c1)
     g_diagram: np.ndarray = np.zeros((n, n), dtype=int)
-    g_diagram[:, -1] = p1
-    g_diagram[-1, :] = p2
+    g_diagram[:, -1] = c1
+    g_diagram[-1, :] = c2
     t = [0] * (n-1)
     for i in range(n-2, -1, -1):
         for j in range(n-2, -1, -1):
@@ -154,72 +226,15 @@ def paths_to_growth_diagram(p1: List[int], p2: List[int]) -> Tuple[np.ndarray, P
                 t[j] = i+1
     return g_diagram, Permutation(t)
 
-def compute_path_tableau(p: List[int]) -> Tableau:
-    """Computes path tableau
-    Relation: Young-Fibonacci lattice path p -> path tableau tab
-
-    >>> compute_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
-    ([3, 5, 7, 1], [4, 6, 0, 2])
+def chain_to_standard_YFT(c: Chain) -> S_Tableau:
+    """Janvier's algorithm to obtain Young-Fibonacci Standard Tableau (YFST) from a chain in the Y-F lattice.
+    YFST are defined as follow:
+        - 
+    Relation: 
     """
-    def path_tableau_rules(a: List[int], b: List[int], k: int, l: int) -> Tuple[int, int, List[int]]:
-        match a[k]:
-            case 1:
-                if b[l] == 2 or b[l] == 0: #ajout d'un 1
-                    a[k] = 0
-                    return 0, k, a
-                return path_tableau_rules(a, b, k+1, l+1)
-            case 2:
-                if b[l] == 1 or b[l] == 0: #transformation d'un 1
-                    a[k] = 1
-                    return 1, k, a
-                else:
-                    return path_tableau_rules(a, b, k+1, l+1)
-        return path_tableau_rules(a, b, k+1, l)
-    act = [int(i) for i in str(p[-1])]
-    tab: Tableau = ([0]* len(act), [0]* len(act))
-    s = sum(act)
-    for k in range(-2, -len(p)-1, -1):
-        i, j, act = path_tableau_rules(act, [int(h) for h in str(p[k])], 0, 0)
-        tab[i][j] = s
-        s -= 1
-    return tab
+    return
 
-def permu_to_path(perm: Permutation) -> Tuple[List[int], List[int]]:
-    """Returns pair of paths in the Young-Fibonacci lattice from a permutation, optimized version.
-    Relation: Permutation perm -> Young-Fibonacci lattice paths (p, q)
-
-    >>> permu_to_path(Permutation([3, 1, 4, 2]))
-    ([0, 1, 2, 12, 22], [0, 1, 11, 21, 22])
-
-    >>> permu_to_path(Permutation([2, 7, 1, 5, 6, 4, 3]))
-    ([0, 1, 11, 21, 22, 212, 2112, 2212], [0, 1, 2, 12, 22, 212, 222, 2212])
+def janvier_insertion():
+    """Janvier's modifications of Roby's insertion algorithm
     """
-    def compute_fibo_node(dg: np.ndarray) -> int:
-        def list_to_int(l: List[int]) -> int:
-            res = 0
-            for i, e in enumerate(l):
-                res += e * 10**(len(l) - i-1)
-            return int(res)
-        res_list: List[int] = []
-        pts = np.argwhere(dg)
-        while(pts.size > 0):
-            id_c, id_l = np.argmax(pts[:, 1]), np.argmax(pts[:, 0])
-            column_ele, line_ele = pts[id_c], pts[id_l]
-            mask = np.ones(pts.shape[0], dtype=bool)
-            mask[id_c] = False
-            if np.all(column_ele == line_ele):
-                res_list.append(1)
-            else:
-                res_list.append(2)
-                mask[id_l] = False
-            pts = pts[mask]
-        return list_to_int(res_list)
-    p: List[int] = [0] * (perm.size+1)
-    q: List[int] = [0] * (perm.size+1)
-    p[1], q[1] = 1, 1
-    p[-1] = compute_fibo_node(perm.matrix)
-    q[-1] = p[-1]
-    for i in range(perm.size, 1, -1):
-        p[i] = compute_fibo_node(perm.matrix[:, :i])
-        q[i] = compute_fibo_node(perm.matrix[:i, :])
-    return p, q
+    return
