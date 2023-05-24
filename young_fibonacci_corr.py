@@ -10,7 +10,7 @@ def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     Relation: Permutation p -> Involutions (inv1, inv2)
     0 stands for empty.
     >>> roby_insertion(Permutation([2, 7, 1, 5, 6, 4, 3]))
-    ([[7, 6, 5, 2], [3, 4, 0, 1]], [[2, 6, 5, 1], [3, 7, 0, 4]])
+    (([7, 6, 5, 2], [3, 4, 0, 1]), ([2, 6, 5, 1], [3, 7, 0, 4]))
     """
     def insert(e: int, key: int, inv1: Involution, inv2: Involution, id_c: int) -> None:
         def shift(inv1: Involution, inv2: Involution, start: int) -> None:
@@ -58,7 +58,7 @@ def evacuation(inv: Involution) -> Tableau:
     0 stands for empty
 
     >>> evacuation([[7, 6, 5, 2], [3, 4, 0, 1]])
-    [[3, 5, 7, 1], [4, 6, 0, 2]]
+    ([3, 5, 7, 1], [4, 6, 0, 2])
     """
     def find_evac_point(p: Involution) -> Tuple[int, int, int]:
         def compare_neighbors(i: int, j: int, p: Involution) -> Tuple[int, int]:
@@ -159,7 +159,7 @@ def compute_path_tableau(p: List[int]) -> Tableau:
     Relation: Young-Fibonacci lattice path p -> path tableau tab
 
     >>> compute_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
-    [[3, 5, 7, 1], [4, 6, None, 2]]
+    ([3, 5, 7, 1], [4, 6, 0, 2])
     """
     def path_tableau_rules(a: List[int], b: List[int], k: int, l: int) -> Tuple[int, int, List[int]]:
         match a[k]:

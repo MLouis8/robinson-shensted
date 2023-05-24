@@ -1,5 +1,5 @@
 from Permutation import Permutation
-from RS_Fomin_permutations import *
+from young_fibonacci_corr import *
 from RS_suites_extraites import robinson_schensted
 import numpy as np
 
@@ -15,11 +15,11 @@ assert robinson_schensted(testV2) == testC2
 assert robinson_schensted(testV3) == testC3
 
 perm1 = Permutation([2, 7, 1, 5, 6, 4, 3])
-p1, q1 = [[7, 6, 5, 2], [3, 4, None, 1]], [[2, 6, 5, 1], [3, 7, None, 4]]
+p1, q1 = ([7, 6, 5, 2], [3, 4, 0, 1]), ([2, 6, 5, 1], [3, 7, 0, 4])
 
 assert roby_insertion(perm1) == (p1, q1)
 
-p1_tilda = [[3, 5, 7, 1], [4, 6, None, 2]]
+p1_tilda = ([3, 5, 7, 1], [4, 6, 0, 2])
 
 assert evacuation(p1) == p1_tilda
 
