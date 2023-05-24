@@ -27,8 +27,10 @@ assert evacuation(p1) == p1_tilda
 
 p1, p2 = permutation_to_paths_gd(perm1)
 #print(paths_to_growth_diagram(p1, p2))
-
 #print(compute_path_table(p1))
 
-#p = Permutation([3, 1, 4, 2])
-#print(permu_to_path(p))
+p = Permutation([3, 1, 4, 2])
+print(permu_to_path(p))
+
+#perm2 = Permutation([4, 3, 1, 2])
+# print(permu_to_growth_diagram(perm2))

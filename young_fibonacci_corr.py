@@ -184,30 +184,42 @@ def compute_path_tableau(p: List[int]) -> Tableau:
         s -= 1
     return tab
 
-# def list_to_int(l):
-#     res = 0
-#     for i, e in enumerate(l):
-#         res += e * 10**(len(l) - i-1)
-#     return res
+def permu_to_path(perm: Permutation) -> Tuple[List[int], List[int]]:
+    """Returns pair of paths in the Young-Fibonacci lattice from a permutation, optimized version.
+    Relation: Permutation perm -> Young-Fibonacci lattice paths (p, q)
 
+    >>> permu_to_path(Permutation([3, 1, 4, 2]))
+    ([0, 1, 2, 12, 22], [0, 1, 11, 21, 22])
 
-# def permu_to_path(permutation):
-#     """Returns pair of paths in the Young-Fibonacci lattice from a permutation, optimized version.
-#     """
-#     p, q = [0] * (permutation.size+1), [0] * (permutation.size+1)
-#     p[1], q[1] = 1, 1
-#     pts = np.argwhere(permutation.matrix)
-#     e = []
-#     while len(pts) > 0:
-#         id_line = np.argmax(pts[:, 0])
-#         id_col = np.argmax(pts[:, 1])
-#         max_line = pts.pop(id_line)
-#         if id_line == id_col:
-#             e.append(1)
-#         else:
-#             max_col = pts.pop(id_col)
-#             e.append(2)
-    
-#     ele = list_to_int()
-#     p[-1], q[-1] = ele, ele
-#     return p, q
+    >>> permu_to_path(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    ([0, 1, 11, 21, 22, 212, 2112, 2212], [0, 1, 2, 12, 22, 212, 222, 2212])
+    """
+    def compute_fibo_node(dg: np.ndarray) -> int:
+        def list_to_int(l: List[int]) -> int:
+            res = 0
+            for i, e in enumerate(l):
+                res += e * 10**(len(l) - i-1)
+            return int(res)
+        res_list: List[int] = []
+        pts = np.argwhere(dg)
+        while(pts.size > 0):
+            id_c, id_l = np.argmax(pts[:, 1]), np.argmax(pts[:, 0])
+            column_ele, line_ele = pts[id_c], pts[id_l]
+            mask = np.ones(pts.shape[0], dtype=bool)
+            mask[id_c] = False
+            if np.all(column_ele == line_ele):
+                res_list.append(1)
+            else:
+                res_list.append(2)
+                mask[id_l] = False
+            pts = pts[mask]
+        return list_to_int(res_list)
+    p: List[int] = [0] * (perm.size+1)
+    q: List[int] = [0] * (perm.size+1)
+    p[1], q[1] = 1, 1
+    p[-1] = compute_fibo_node(perm.matrix)
+    q[-1] = p[-1]
+    for i in range(perm.size, 1, -1):
+        p[i] = compute_fibo_node(perm.matrix[:, :i])
+        q[i] = compute_fibo_node(perm.matrix[:i, :])
+    return p, q
