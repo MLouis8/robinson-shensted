@@ -1,21 +1,25 @@
 from Permutation import Permutation
+from typing import List, Tuple
 import numpy as np
 
-def roby_insertion(p: Permutation) -> tuple[list, list]:
-    """Roby's Insertion algorithm.
-    Relation: Permutation p -> involutions (inv1, inv2)
+Involution = Tuple[List[int], List[int]]
+Tableau = Tuple[List[int], List[int]]
 
+def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
+    """Roby's Insertion algorithm.
+    Relation: Permutation p -> Involutions (inv1, inv2)
+    0 stands for empty.
     >>> roby_insertion(Permutation([2, 7, 1, 5, 6, 4, 3]))
-    ([[7, 6, 5, 2], [3, 4, None, 1]], [[2, 6, 5, 1], [3, 7, None, 4]])
+    ([[7, 6, 5, 2], [3, 4, 0, 1]], [[2, 6, 5, 1], [3, 7, 0, 4]])
     """
-    def insert(e: int, key: int, inv1: list, inv2: list, id_c: int) -> None:
-        def shift(inv1: list, inv2: list, start: int) -> None:
+    def insert(e: int, key: int, inv1: Involution, inv2: Involution, id_c: int) -> None:
+        def shift(inv1: Involution, inv2: Involution, start: int) -> None:
             inv1[0].append(inv1[0][-1])
             inv1[1].append(inv1[1][-1])
             inv2[0].append(inv2[0][-1])
             inv2[1].append(inv2[1][-1])
-            inv1[0][-2], inv1[1][-2] = None, None
-            inv2[0][-2], inv2[1][-2] = None, None
+            inv1[0][-2], inv1[1][-2] = 0, 0
+            inv2[0][-2], inv2[1][-2] = 0, 0
             for i in range(len(inv1[0])-2, start, -1):
                 inv1[0][i] = inv1[0][i-1]
                 inv1[1][i] = inv1[1][i-1]
@@ -24,9 +28,9 @@ def roby_insertion(p: Permutation) -> tuple[list, list]:
 
         if (len(inv1[0]) <= id_c):
             inv1[0].append(e)
-            inv1[1].append(None)
+            inv1[1].append(0)
             inv2[0].append(key)
-            inv2[1].append(None)
+            inv2[1].append(0)
         elif e > inv1[0][id_c]:
             shift(inv1, inv2, id_c)
             inv1[0][id_c] = e
@@ -39,47 +43,49 @@ def roby_insertion(p: Permutation) -> tuple[list, list]:
             else:
                 inv1[1][id_c] = e
                 inv2[1][id_c] = key
-    inv1, inv2 = [[], []], [[], []]
+    inv1: Involution = ([], [])
+    inv2: Involution = ([], [])
     for k in p.keys:
         e = p[k]
         insert(e, k, inv1, inv2, 0)
     return inv1, inv2
 
-def evacuation(inv: list) -> list:
+def evacuation(inv: Involution) -> Tableau:
     """Roby's evacuation algorithm.
-    Relation: involution inv -> path tableau
+    Relation: Involution inv -> path tableau
     
     Attention on suppose ici que p[0][0] contienne le nombre d'elements de p
+    0 stands for empty
 
-    >>> evacuation([[7, 6, 5, 2], [3, 4, None, 1]])
-    [[3, 5, 7, 1], [4, 6, None, 2]]
+    >>> evacuation([[7, 6, 5, 2], [3, 4, 0, 1]])
+    [[3, 5, 7, 1], [4, 6, 0, 2]]
     """
-    def find_evac_point(p: list) -> tuple[int, int, int]:
-        def compare_neighbors(i: int, j: int, p: list) -> tuple[int, int]:
-            if p[i+1][j] == None: #ligne dessus vide
-                p[i][j] = None
+    def find_evac_point(p: Involution) -> Tuple[int, int, int]:
+        def compare_neighbors(i: int, j: int, p: Involution) -> Tuple[int, int]:
+            if p[i+1][j] == 0: #ligne dessus vide
+                p[i][j] = 0
                 return i, j
-            if len(p[i]) <= j+1 or p[i][j+1] == None or p[i+1][j] > p[i][j+1]: #fin de la liste ou voisin droite vide ou voisin dessus > voisin droite
+            if len(p[i]) <= j+1 or p[i][j+1] == 0 or p[i+1][j] > p[i][j+1]: #fin de la liste ou voisin droite vide ou voisin dessus > voisin droite
                 p[i][j] = p[i+1][j]
-                p[i+1][j] = None
+                p[i+1][j] = 0
                 return i+1, j
             else: #voisin dessus <= voisin droite
                 p[i][j] = p[i][j+1]
-                p[i][j+1] = None
+                p[i][j+1] = 0
                 return compare_neighbors(i, j+1, p)
         j = 0
-        while p[0][j] is None:
+        while p[0][j] == 0:
             j += 1
         tmp = p[0][j]
         x, y = compare_neighbors(0, j, p)
         return tmp, x, y
-    path_tableau = [[None]*len(inv[0]), [None]*len(inv[1])]
+    path_tableau: Tableau = ([0]*len(inv[0]), [0]*len(inv[1]))
     for i in range(inv[0][0]):
         e, x, y = find_evac_point(inv)
         path_tableau[x][y] = e
     return path_tableau
 
-def permu_to_growth_diagram(p: Permutation) -> list:
+def permu_to_growth_diagram(p: Permutation) -> np.ndarray:
     """Fomin's algorithm.
     Relation: permutation p -> growth diagram g_diagram
 
@@ -93,7 +99,7 @@ def permu_to_growth_diagram(p: Permutation) -> list:
            [   0,    1,    1,    2,   12,  112,  212,  222],
            [   0,    1,   11,   21,   22,  212, 2112, 2212]])
     """
-    def g_diagram_rules(g_diagram: list, i: int, j: int, p: Permutation) -> int:
+    def g_diagram_rules(g_diagram: np.ndarray, i: int, j: int, p: Permutation) -> int:
         mu1, mu2, nu = g_diagram[i, j-1], g_diagram[i-1, j], g_diagram[i-1, j-1]
         if mu1 == nu:
             if mu2 == nu:
@@ -105,26 +111,26 @@ def permu_to_growth_diagram(p: Permutation) -> list:
             return mu1
         return 2 if nu == 0 else int('2'+ str(nu))
 
-    g_diagram = np.zeros((p.size+1, p.size+1), dtype=int)
+    g_diagram: np.ndarray = np.zeros((p.size+1, p.size+1), dtype=int)
     for i in range(1, p.size+1):
         for j in range(1, p.size+1):
             g_diagram[i, j] = g_diagram_rules(g_diagram, i, j, p)
     return g_diagram
 
-def permutation_to_paths_gd(p: Permutation) -> tuple[list, list]:
+def permutation_to_paths_gd(p: Permutation) -> Tuple[np.ndarray, np.ndarray]:
     """Fomin's algorithm to obtain pair of paths in the Young-Fibonacci lattice from permutation.
     This version uses the growth diagram.
 
     Relation: permutation p -> Young-Fibonacci lattice paths (path1, path2)
     """
-    g_diagram = permu_to_growth_diagram(p)
+    g_diagram: np.ndarray = permu_to_growth_diagram(p)
     return g_diagram[:, -1], g_diagram[-1, :]
 
-def paths_to_growth_diagram(p1: list, p2: list) -> tuple[list, Permutation]:
+def paths_to_growth_diagram(p1: List[int], p2: List[int]) -> Tuple[np.ndarray, Permutation]:
     """Reverse Fomin's algorithm.
     Relation: Young-Fibonacci lattice paths (p1, p2) -> growth diagram g_diagram, Permutaion p
     """
-    def g_diagram_rules_reversed(g_diagram: list, i: int, j: int) -> tuple[int, bool]:
+    def g_diagram_rules_reversed(g_diagram: np.ndarray, i: int, j: int) -> Tuple[int, bool]:
         mu1, mu2, lmbda = g_diagram[i+1, j], g_diagram[i, j+1], g_diagram[i+1, j+1]
         if lmbda == mu1:
             if lmbda == mu2:
@@ -137,7 +143,7 @@ def paths_to_growth_diagram(p1: list, p2: list) -> tuple[list, Permutation]:
             return w, True
         return w, False
     n = len(p1)
-    g_diagram = np.zeros((n, n), dtype=int)
+    g_diagram: np.ndarray = np.zeros((n, n), dtype=int)
     g_diagram[:, -1] = p1
     g_diagram[-1, :] = p2
     t = [0] * (n-1)
@@ -148,14 +154,14 @@ def paths_to_growth_diagram(p1: list, p2: list) -> tuple[list, Permutation]:
                 t[j] = i+1
     return g_diagram, Permutation(t)
 
-def compute_path_tableau(p: list) -> list:
+def compute_path_tableau(p: List[int]) -> Tableau:
     """Computes path tableau
     Relation: Young-Fibonacci lattice path p -> path tableau tab
 
     >>> compute_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
     [[3, 5, 7, 1], [4, 6, None, 2]]
     """
-    def path_tableau_rules(a: list, b: list, k: int, l: int) -> tuple[int, int, list]:
+    def path_tableau_rules(a: List[int], b: List[int], k: int, l: int) -> Tuple[int, int, List[int]]:
         match a[k]:
             case 1:
                 if b[l] == 2 or b[l] == 0: #ajout d'un 1
@@ -170,7 +176,7 @@ def compute_path_tableau(p: list) -> list:
                     return path_tableau_rules(a, b, k+1, l+1)
         return path_tableau_rules(a, b, k+1, l)
     act = [int(i) for i in str(p[-1])]
-    tab = [[None]* len(act), [None]* len(act)]
+    tab: Tableau = ([0]* len(act), [0]* len(act))
     s = sum(act)
     for k in range(-2, -len(p)-1, -1):
         i, j, act = path_tableau_rules(act, [int(h) for h in str(p[k])], 0, 0)
@@ -178,30 +184,30 @@ def compute_path_tableau(p: list) -> list:
         s -= 1
     return tab
 
-def list_to_int(l):
-    res = 0
-    for i, e in enumerate(l):
-        res += e * 10**(len(l) - i-1)
-    return res
+# def list_to_int(l):
+#     res = 0
+#     for i, e in enumerate(l):
+#         res += e * 10**(len(l) - i-1)
+#     return res
 
 
-def permu_to_path(permutation):
-    """Returns pair of paths in the Young-Fibonacci lattice from a permutation, optimized version.
-    """
-    p, q = [0] * (permutation.size+1), [0] * (permutation.size+1)
-    p[1], q[1] = 1, 1
-    pts = np.argwhere(permutation.matrix)
-    e = []
-    while len(pts) > 0:
-        id_line = np.argmax(pts[:, 0])
-        id_col = np.argmax(pts[:, 1])
-        max_line = pts.pop(id_line)
-        if id_line == id_col:
-            e.append(1)
-        else:
-            max_col = pts.pop(id_col)
-            e.append(2)
+# def permu_to_path(permutation):
+#     """Returns pair of paths in the Young-Fibonacci lattice from a permutation, optimized version.
+#     """
+#     p, q = [0] * (permutation.size+1), [0] * (permutation.size+1)
+#     p[1], q[1] = 1, 1
+#     pts = np.argwhere(permutation.matrix)
+#     e = []
+#     while len(pts) > 0:
+#         id_line = np.argmax(pts[:, 0])
+#         id_col = np.argmax(pts[:, 1])
+#         max_line = pts.pop(id_line)
+#         if id_line == id_col:
+#             e.append(1)
+#         else:
+#             max_col = pts.pop(id_col)
+#             e.append(2)
     
-    ele = list_to_int()
-    p[-1], q[-1] = ele, ele
-    return p, q
+#     ele = list_to_int()
+#     p[-1], q[-1] = ele, ele
+#     return p, q
