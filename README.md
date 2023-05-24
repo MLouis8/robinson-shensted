@@ -13,3 +13,5 @@ Quelques algo autour de la correspondance de Young-Fibonnacci.
 - Algorithme inverser, construisant un diagramme de croissance et une permutation à partir d'une paire de chemin dans le graphe de Young-Fibonacci
 
 - Construction du "path tableau" à partir d'un chemin dans le graphe de Young-Fibonacci
+
+- Algo de permutation -> chemins dans le treillis de Y-F sans diagramme de croissance
