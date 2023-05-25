@@ -51,14 +51,16 @@ def check_involution(inv):
                 return False
             temp = i
         return True
-    if not isinstance(inv, list):
-        raise TypeError("Involution must be a list.")
-    if len(inv) != 2:
-        raise TypeError("Involution must contain only two lines.")
+    if not isinstance(inv, tuple[list[int], list[int]]):
+        raise TypeError("Involution must be a tuple of two int list.")
     if len(inv[0] != inv[1]):
-        raise TypeError("The lines must have the same form.")
-    if not is_sorted(inv[1]):
-        raise ValueError("The second line must be in decreasing order.")
-    for i in range(len(inv[0])):
-        if inv[0][i] >= inv[1][i]:
+        raise TypeError("The lines must have the same size.")
+
+def check_standard_yf_tableau(std_tab):
+    if not isinstance(std_tab, class_or_tuple):
+        raise TypeError("Standard Tableau is a Tuple of two int lists.")
+    if not std_tab[1].is_sorted():
+        raise ValueError("The second line must be in decreasing order")
+    for i in range(len(std_tab[0])):
+        if std_tab[0][i] >= std_tab[1][i] and std_tab[1][i] != 0:
             raise ValueError("Each column must be strictly sorted.")
