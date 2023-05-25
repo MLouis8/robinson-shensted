@@ -283,8 +283,53 @@ def standard_YFT_to_chain(std_tab: STableau) -> Chain:
     >>> standard_YFT_to_chain(([3, 6, 1, 4, 2], [7, 0, 5, 0, 0]))
     [0, 1, 2, 12, 22, 221, 2211, 21211]
     """
-    
-    return [0, 1, 2, 12, 22, 221, 2211, 21211]
+    def non_empty_size(l: List[int]) -> int:
+        cpt = 0
+        for i in l:
+            if i != 0:
+                cpt += 1
+        return cpt
+    def translate_form(tab: STableau) -> int:
+        res, cpt = 0, 0
+        t = non_empty_size(tab[0])
+        for i in range(len(tab[0])):
+            if tab[0][i] != 0:
+                if tab[1][i] != 0:
+                    res += 2 * 10**(t-i-1+cpt)
+                else:
+                    res += 1 * 10**(t-i-1+cpt)
+            else:
+                cpt += 1
+        return res
+    def shift_max(tab: STableau, pos: int) -> None:
+        if tab[1][pos+1] == 0 and tab[0][pos+1] != 0:
+            tab[1][pos] = tab[0][pos+1]
+            tab[0][pos+1] = 0
+            return
+        i = 1
+        while tab[0][pos+i] == 0:
+            i += 1 
+        temp = tab[1][pos+i]
+        tab[1][pos+i] = tab[1][pos]
+        tab[1][pos] = temp
+        return shift_max(tab, pos+1)
+
+    act = non_empty_size(std_tab[0]) + non_empty_size(std_tab[1])
+    res: Chain = [0] * (act+1)
+
+    while act > 1:
+        print(f"std_tab = {std_tab}")
+        res[act] = translate_form(std_tab)
+        if act == std_tab[0][0]:
+            std_tab[0][0] = 0
+        else:
+            if non_empty_size(std_tab[0]) == non_empty_size(std_tab[1]):
+                std_tab[1][0] = 0
+            else:
+                shift_max(std_tab, 0)
+        act -= 1
+    return res  
+
 
 def janvier_insertion():
     """Janvier's modifications of Roby's insertion algorithm
