@@ -23,14 +23,16 @@ p1_tilda = ([3, 5, 7, 1], [4, 6, 0, 2])
 
 assert evacuation(p1) == p1_tilda
 
-#print(permu_to_growth_diagram(perm1))
+#print(permutation_to_growth_diagram(perm1))
 
 p1, p2 = permutation_to_chains_gd(perm1)
 #print(chains_to_growth_diagram(p1, p2))
-#print(compute_path_table(p1))
+#print(chain_to_path_tableau(p1))
 
 p = Permutation([3, 1, 4, 2])
-#print(permu_to_chains(p))
+#print(permutation_to_chains(p))
 
 perm2 = Permutation([4, 3, 1, 2])
-# print(permu_to_growth_diagram(perm2))
+# print(permutation_to_growth_diagram(perm2))
+
+#print(chain_to_standard_YFT([0, 1, 2, 12, 22, 221, 2211, 21211]))

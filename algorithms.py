@@ -4,7 +4,7 @@ import numpy as np
 
 Involution = Tuple[List[int], List[int]]
 Tableau = Tuple[List[int], List[int]]
-S_Tableau = Tuple[List[int], List[int]]
+STableau = Tuple[List[int], List[int]]
 Chain = List[int]
 
 def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
@@ -87,11 +87,11 @@ def evacuation(inv: Involution) -> Tableau:
         path_tableau[x][y] = e
     return path_tableau
 
-def compute_path_tableau(p: Chain) -> Tableau:
+def chain_to_path_tableau(p: Chain) -> Tableau:
     """Computes path tableau
     Relation: Young-Fibonacci lattice chain p -> path tableau tab
 
-    >>> compute_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
+    >>> chain_to_path_tableau([0, 1, 2, 12, 22, 212, 222, 2212])
     ([3, 5, 7, 1], [4, 6, 0, 2])
     """
     def path_tableau_rules(a: List[int], b: List[int], k: int, l: int) -> Tuple[int, int, List[int]]:
@@ -117,14 +117,14 @@ def compute_path_tableau(p: Chain) -> Tableau:
         s -= 1
     return tab
 
-def permu_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
+def permutation_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
     """Returns pair of chains in the Young-Fibonacci lattice from a permutation, optimized version.
     Relation: Permutation perm -> Young-Fibonacci lattice chains (p, q)
 
-    >>> permu_to_chains(Permutation([3, 1, 4, 2]))
+    >>> permutation_to_chains(Permutation([3, 1, 4, 2]))
     ([0, 1, 2, 12, 22], [0, 1, 11, 21, 22])
 
-    >>> permu_to_chains(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    >>> permutation_to_chains(Permutation([2, 7, 1, 5, 6, 4, 3]))
     ([0, 1, 11, 21, 22, 212, 2112, 2212], [0, 1, 2, 12, 22, 212, 222, 2212])
     """
     def compute_fibo_node(dg: np.ndarray) -> int:
@@ -157,11 +157,11 @@ def permu_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
         q[i] = compute_fibo_node(perm.matrix[:i, :])
     return p, q
 
-def permu_to_growth_diagram(p: Permutation) -> np.ndarray:
+def permutation_to_growth_diagram(p: Permutation) -> np.ndarray:
     """Fomin's algorithm.
     Relation: permutation p -> growth diagram g_diagram
 
-    >>> permu_to_growth_diagram(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    >>> permutation_to_growth_diagram(Permutation([2, 7, 1, 5, 6, 4, 3]))
     array([[   0,    0,    0,    0,    0,    0,    0,    0],
            [   0,    0,    0,    1,    1,    1,    1,    1],
            [   0,    1,    1,    2,    2,    2,    2,    2],
@@ -195,7 +195,7 @@ def permutation_to_chains_gd(p: Permutation) -> Tuple[Chain, Chain]:
 
     Relation: permutation p -> Young-Fibonacci lattice chains (chain1, chain2)
     """
-    g_diagram: np.ndarray = permu_to_growth_diagram(p)
+    g_diagram: np.ndarray = permutation_to_growth_diagram(p)
     return g_diagram[:, -1].tolist(), g_diagram[-1, :].tolist()
 
 def chains_to_growth_diagram(c1: Chain, c2: Chain) -> Tuple[np.ndarray, Permutation]:
@@ -226,13 +226,65 @@ def chains_to_growth_diagram(c1: Chain, c2: Chain) -> Tuple[np.ndarray, Permutat
                 t[j] = i+1
     return g_diagram, Permutation(t)
 
-def chain_to_standard_YFT(c: Chain) -> S_Tableau:
+def chain_to_standard_YFT(c: Chain) -> STableau:
     """Janvier's algorithm to obtain Young-Fibonacci Standard Tableau (YFST) from a chain in the Y-F lattice.
     YFST are defined as follow:
-        - 
-    Relation: 
+        - strictly increasing in columns
+        - top row is decreasing
+    Relation: Young Fibonacci lattice chain c -> Standard Young Fibonacci Tableau res
+    0 stands for empty value.
+
+    >>> chain_to_standard_YFT([0, 1, 2, 12, 22, 221, 2211, 21211])
+    ([3, 6, 1, 4, 2], [7, 0, 5, 0, 0])
     """
-    return
+    def shift(tab: STableau, id_row: int, act: int, end: int) -> None:
+        if act == end:
+            tab[id_row][end] = 0
+            return
+        tab[id_row][act] = tab[id_row][act-1]
+        return shift(tab, id_row, act-1, end)
+    def standard_tab_rules(prev: List[int], act: List[int], tab: STableau, e: int) -> None:
+        if len(act) == len(prev): # transformation du premier un en deux
+            for id_digit, digit in enumerate(prev):
+                if digit == 1:
+                    tab[1][id_digit] = e
+                    return
+        else: # ajout d'un un (premier un)
+            last = len(tab[0])-1
+            for id_digit, digit in enumerate(act):
+                if digit == 1:
+                    if id_digit == 0:
+                        shift(tab, 0, last, 0)
+                        shift(tab, 1, last, 0)
+                        tab[0][0] = e
+                        return
+                    shift(tab, 0, last, id_digit)
+                    shift(tab, 1, last, id_digit)
+                    tab[0][id_digit] = res[1][id_digit-1]
+                    shift(tab, 1, id_digit-1, 0)
+                    tab[1][0] = e
+                    return
+    res: STableau = ([0] * len(str(c[-1])), [0] * len(str(c[-1])))
+    if len(res[0]) == 1:
+        return res
+    res[0][0] = 1
+    prev = [1]
+    for i in range(2, len(c)):
+        act = [int(k) for k in str(c[i])]
+        standard_tab_rules(prev, act, res, i)
+        prev = act
+    return res
+
+def standard_YFT_to_chain(std_tab: STableau) -> Chain:
+    """Janvier's algorithm reversed.
+    Relation: Standard Young Fibonacci Tableau std_tab -> Young Fibonacci lattice chain res
+    0 stands for empty
+
+    >>> standard_YFT_to_chain(([3, 6, 1, 4, 2], [7, 0, 5, 0, 0]))
+    [0, 1, 2, 12, 22, 221, 2211, 21211]
+    """
+    
+    return [0, 1, 2, 12, 22, 221, 2211, 21211]
 
 def janvier_insertion():
     """Janvier's modifications of Roby's insertion algorithm
