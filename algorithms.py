@@ -302,29 +302,34 @@ def standard_YFT_to_chain(std_tab: STableau) -> Chain:
                 cpt += 1
         return res
     def shift_max(tab: STableau, pos: int) -> None:
-        if tab[1][pos+1] == 0 and tab[0][pos+1] != 0:
-            tab[1][pos] = tab[0][pos+1]
-            tab[0][pos+1] = 0
-            return
         i = 1
         while tab[0][pos+i] == 0:
             i += 1 
+        if tab[1][pos+i] == 0:
+            if tab[0][pos+i] > tab[0][pos]:
+                tab[1][pos] = tab[0][pos+i]
+                tab[0][pos+i] = 0
+            else:
+                tab[1][pos] = 0
+            return
         temp = tab[1][pos+i]
         tab[1][pos+i] = tab[1][pos]
         tab[1][pos] = temp
-        return shift_max(tab, pos+1)
+        return shift_max(tab, pos+i)
 
     act = non_empty_size(std_tab[0]) + non_empty_size(std_tab[1])
     res: Chain = [0] * (act+1)
 
-    while act > 1:
-        print(f"std_tab = {std_tab}")
+    while act > 0:
         res[act] = translate_form(std_tab)
-        if act == std_tab[0][0]:
-            std_tab[0][0] = 0
+        i = 0
+        while std_tab[0][i] == 0:
+            i += 1
+        if act == std_tab[0][i]:
+            std_tab[0][i] = 0
         else:
             if non_empty_size(std_tab[0]) == non_empty_size(std_tab[1]):
-                std_tab[1][0] = 0
+                std_tab[1][i] = 0
             else:
                 shift_max(std_tab, 0)
         act -= 1
