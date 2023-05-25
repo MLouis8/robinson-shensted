@@ -34,7 +34,11 @@ class Permutation:
 
     @property
     def keys(self):
-        return self._permu_dict.keys()
+        return list(self._permu_dict.keys())
+    
+    @property
+    def table(self):
+        return list(self._permu_dict.values())
 
     @property
     def matrix(self):

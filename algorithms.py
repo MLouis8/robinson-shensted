@@ -236,6 +236,9 @@ def chain_to_standard_YFT(c: Chain) -> STableau:
 
     >>> chain_to_standard_YFT([0, 1, 2, 12, 22, 221, 2211, 21211])
     ([3, 6, 1, 4, 2], [7, 0, 5, 0, 0])
+
+    >>> chain_to_standard_YFT([0, 1, 11, 21, 22, 212, 2112, 2212])
+    ([2, 5, 4, 1], [7, 6, 0, 3])
     """
     def shift(tab: STableau, id_row: int, act: int, end: int) -> None:
         if act == end:
@@ -244,10 +247,17 @@ def chain_to_standard_YFT(c: Chain) -> STableau:
         tab[id_row][act] = tab[id_row][act-1]
         return shift(tab, id_row, act-1, end)
     def standard_tab_rules(prev: List[int], act: List[int], tab: STableau, e: int) -> None:
+        def insert_sorted(tab: STableau, id_digit: int, element: int) -> None:
+            if id_digit == 0 or tab[1][id_digit-1] > element: # trie
+                tab[1][id_digit] = element
+            else:
+                tab[1][id_digit] = tab[1][id_digit-1]
+                return insert_sorted(tab, id_digit-1, element)
+            return
         if len(act) == len(prev): # transformation du premier un en deux
             for id_digit, digit in enumerate(prev):
                 if digit == 1:
-                    tab[1][id_digit] = e
+                    insert_sorted(tab, id_digit, e)
                     return
         else: # ajout d'un un (premier un)
             last = len(tab[0])-1
@@ -336,7 +346,35 @@ def standard_YFT_to_chain(std_tab: STableau) -> Chain:
     return res  
 
 
-def janvier_insertion():
+def janvier_insertion(p: Permutation) -> Tuple[STableau, STableau]:
     """Janvier's modifications of Roby's insertion algorithm
+    Relation: Permutation p -> Pair of Standard Young Fibonacci Tableau (std1, std2)
+
+    >>> janvier_insertion(Permutation([2, 7, 1, 5, 6, 4, 3]))
+    (([3, 4, 5, 1], [7, 6, 0, 2]), ([2, 5, 4, 1], [7, 6, 0, 3]))
     """
-    return
+    def max_not_blacklisted(p: Permutation, blacklist: List[int]) -> Tuple[int, int]:
+        res, id_res = p[1], 1
+        for i in p.keys:
+            if not i in blacklist and p[i] > res:
+                res, id_res = p[i], i
+        return res, id_res
+    blacklist_id: List[int] = []
+    std1: STableau = ([], [])
+    std2: STableau = ([], [])
+    for i in range(p.size, 0, -1):
+        if not i in blacklist_id:
+            m, id_m = max_not_blacklisted(p, blacklist_id)
+            blacklist_id.append(i)
+            if id_m != i:
+                blacklist_id.append(id_m)
+                std1[0].append(p[i])
+                std1[1].append(m)
+                std2[0].append(id_m)
+                std2[1].append(i)
+            else:
+                std1[0].append(p[i])
+                std1[1].append(0)
+                std2[0].append(i)
+                std2[1].append(0)
+    return std1, std2

@@ -46,3 +46,6 @@ perm2 = Permutation([4, 3, 1, 2])
 # print(standard_YFT_to_chain(chain_to_standard_YFT([0, 1, 2, 21])))
 # print(standard_YFT_to_chain(chain_to_standard_YFT([0, 1, 11, 21])))
 # print(standard_YFT_to_chain(([2, 1], [3, 0])))
+
+#print(chain_to_standard_YFT([0, 1, 11, 21, 22, 212, 2112, 2212]))
+#print(chain_to_standard_YFT([0, 1, 2, 12, 22, 212, 222, 2212]))
