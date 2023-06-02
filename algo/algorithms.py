@@ -9,9 +9,10 @@ Involution = Tuple[List[int], List[int]]
 Tableau = Tuple[List[int], List[int]]
 STableau = Tuple[List[int], List[int]]
 Chain = List[int]
+InvolutionV2 = List[List[int]]
 
 
-def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
+def roby_insertion(p: Permutation) -> Tuple[InvolutionV2, InvolutionV2]:
     """Roby's Insertion algorithm.
     Relation: Permutation p -> Involutions (inv1, inv2)
     0 stands for empty.
@@ -19,43 +20,27 @@ def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     (([7, 6, 5, 2], [3, 4, 0, 1]), ([2, 6, 5, 1], [3, 7, 0, 4]))
     """
 
-    def insert(e: int, key: int, inv1: Involution, inv2: Involution, id_c: int) -> None:
-        def shift(inv1: Involution, inv2: Involution, start: int) -> None:
-            inv1[0].append(inv1[0][-1])
-            inv1[1].append(inv1[1][-1])
-            inv2[0].append(inv2[0][-1])
-            inv2[1].append(inv2[1][-1])
-            inv1[0][-2], inv1[1][-2] = 0, 0
-            inv2[0][-2], inv2[1][-2] = 0, 0
-            for i in range(len(inv1[0]) - 2, start, -1):
-                inv1[0][i] = inv1[0][i - 1]
-                inv1[1][i] = inv1[1][i - 1]
-                inv2[0][i] = inv2[0][i - 1]
-                inv2[1][i] = inv2[1][i - 1]
-
-        if len(inv1[0]) <= id_c:
-            inv1[0].append(e)
-            inv1[1].append(0)
-            inv2[0].append(key)
-            inv2[1].append(0)
-        elif e > inv1[0][id_c]:
-            shift(inv1, inv2, id_c)
-            inv1[0][id_c] = e
-            inv2[0][id_c] = key
-        else:
-            if inv1[1][id_c]:
-                tmp = inv1[1][id_c]
-                inv1[1][id_c] = e
-                insert(tmp, key, inv1, inv2, id_c + 1)
+    def insert(element: int, key: int, inv1: InvolutionV2, inv2: InvolutionV2, id_c: int) -> None:
+        if element < inv1[id_c][0]:
+            if inv1[id_c][1] == 0:
+                inv1[id_c][1] = element
+                inv2[id_c][1] = key
             else:
-                inv1[1][id_c] = e
-                inv2[1][id_c] = key
+                temp = inv1[id_c][1]
+                inv1[id_c][1] = element
+                if len(inv1) == id_c+1:
+                    inv1.append([temp, 0])
+                    inv2.append([key, 0])
+                else:
+                    insert(temp, key, inv1, inv2, id_c+1)
+        else:
+            inv1.insert(id_c, [element, 0])
+            inv2.insert(id_c, [key, 0])
 
-    inv1: Involution = ([], [])
-    inv2: Involution = ([], [])
-    for k in p.keys:
-        e = p[k]
-        insert(e, k, inv1, inv2, 0)
+    inv1: InvolutionV2 = [[p[1], 0]]
+    inv2: InvolutionV2 = [[1, 0]]
+    for k in p.keys[1:]:
+        insert(p[k], k, inv1, inv2, 0)
     return inv1, inv2
 
 
