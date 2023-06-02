@@ -1,6 +1,7 @@
-from Permutation import Permutation
-from check import check_standard_yf_tableau
-from algorithms import *
+import sys
+
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, janvier_insertion, check_standard_yf_tableau
 
 p1 = Permutation([2, 3, 1])
 p2 = Permutation([1, 3, 2])

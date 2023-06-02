@@ -1,6 +1,6 @@
-from Permutation import Permutation
 from typing import List, Tuple
 import numpy as np
+from algo.Permutation import Permutation
 
 Involution = Tuple[List[int], List[int]]
 Tableau = Tuple[List[int], List[int]]

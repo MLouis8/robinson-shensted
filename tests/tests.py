@@ -1,7 +1,14 @@
-from Permutation import Permutation
-from algorithms import *
-from RS_suites_extraites import robinson_schensted
+import sys
 import numpy as np
+
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import (
+    Permutation,
+    robinson_schensted,
+    roby_insertion,
+    evacuation,
+    permutation_to_chains_gd,
+)
 
 testV1 = [3, 8, 4, 1, 2]
 testC1 = [[1, 2], [3, 4], [8]]
