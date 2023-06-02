@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("/home/louis/workspace/robinson-shensted")
 from typing import List, Tuple
 import numpy as np
 from algo.Permutation import Permutation
@@ -137,10 +140,10 @@ def permutation_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
     Relation: Permutation perm -> Young-Fibonacci lattice chains (p, q)
 
     >>> permutation_to_chains(Permutation([3, 1, 4, 2]))
-    ([0, 1, 2, 12, 22], [0, 1, 11, 21, 22])
+    ([0, 1, 11, 21, 22], [0, 1, 2, 12, 22])
 
     >>> permutation_to_chains(Permutation([2, 7, 1, 5, 6, 4, 3]))
-    ([0, 1, 11, 21, 22, 212, 2112, 2212], [0, 1, 2, 12, 22, 212, 222, 2212])
+    ([0, 1, 2, 12, 22, 212, 222, 2212], [0, 1, 11, 21, 22, 212, 2112, 2212])
     """
 
     def compute_fibo_node(dg: np.ndarray) -> int:
@@ -173,7 +176,7 @@ def permutation_to_chains(perm: Permutation) -> Tuple[Chain, Chain]:
     for i in range(perm.size, 1, -1):
         p[i] = compute_fibo_node(perm.matrix[:, :i])
         q[i] = compute_fibo_node(perm.matrix[:i, :])
-    return p, q
+    return q, p
 
 
 def permutation_to_growth_diagram(p: Permutation) -> np.ndarray:
