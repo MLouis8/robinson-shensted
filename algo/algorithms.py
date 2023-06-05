@@ -10,6 +10,7 @@ Tableau = Tuple[List[int], List[int]]
 STableau = Tuple[List[int], List[int]]
 Chain = List[int]
 
+
 def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     """Roby's Insertion algorithm.
     Relation: Permutation p -> Involutions (inv1, inv2)
@@ -61,15 +62,15 @@ def evacuation(inv: Involution) -> Tableau:
                 inv[i][j] = 0
                 return j, i
             if (
-                len(inv) == i + 1 or inv[i+1][j] == 0 or inv[i][j+ 1] > inv[i+1][j]
+                len(inv) == i + 1 or inv[i + 1][j] == 0 or inv[i][j + 1] > inv[i + 1][j]
             ):  # fin de la liste ou voisin droite vide ou voisin dessus > voisin droite
-                inv[i][j] = inv[i][j+1]
-                inv[i][j+1] = 0
-                return j+1, i
+                inv[i][j] = inv[i][j + 1]
+                inv[i][j + 1] = 0
+                return j + 1, i
             else:  # voisin dessus <= voisin droite
-                inv[i][j] = inv[i+1][j]
-                inv[i+1][j] = 0
-                return compare_neighbors(i+1, j, inv)
+                inv[i][j] = inv[i + 1][j]
+                inv[i + 1][j] = 0
+                return compare_neighbors(i + 1, j, inv)
 
         i = 0
         while inv[i][0] == 0:
@@ -326,58 +327,53 @@ def standard_YFT_to_chain(std_tab: STableau) -> Chain:
     [0, 1, 2, 12, 22, 221, 2211, 21211]
     """
 
-    def non_empty_size(l: List[int]) -> int:
-        cpt = 0
-        for i in l:
-            if i != 0:
-                cpt += 1
-        return cpt
-
     def translate_form(tab: STableau) -> int:
-        res, cpt = 0, 0
-        t = non_empty_size(tab[0])
+        res = 0
         for i in range(len(tab[0])):
-            if tab[0][i] != 0:
-                if tab[1][i] != 0:
-                    res += 2 * 10 ** (t - i - 1 + cpt)
-                else:
-                    res += 1 * 10 ** (t - i - 1 + cpt)
-            else:
-                cpt += 1
+            if tab[0][i] != 0 and tab[1][i] != 0:
+                    res = res * 10 + 2
+            elif tab[0][i] != 0 or tab[1][i] != 0:
+                    res = res * 10 + 1
         return res
 
-    def shift_max(tab: STableau, pos: int) -> None:
-        i = 1
-        while tab[0][pos + i] == 0:
-            i += 1
-        if tab[1][pos + i] == 0:
-            if tab[0][pos + i] > tab[0][pos]:
-                tab[1][pos] = tab[0][pos + i]
-                tab[0][pos + i] = 0
-            else:
-                tab[1][pos] = 0
+    def right_neighbor(tab: STableau, pos: int) -> int:
+        pos += 1
+        while len(tab[1]) > pos+1 and tab[1][pos] == 0:
+            pos += 1
+        return pos
+    
+    def apply_reverse_janvier(tab: STableau, pos: int) -> None:
+        if tab[1][pos] == 0:
+            tab[0].pop(pos)
+            tab[1].pop(pos)
             return
-        temp = tab[1][pos + i]
-        tab[1][pos + i] = tab[1][pos]
-        tab[1][pos] = temp
-        return shift_max(tab, pos + i)
-
-    act = non_empty_size(std_tab[0]) + non_empty_size(std_tab[1])
-    res: Chain = [0] * (act + 1)
-
-    while act > 0:
-        res[act] = translate_form(std_tab)
-        i = 0
-        while std_tab[0][i] == 0:
-            i += 1
-        if act == std_tab[0][i]:
-            std_tab[0][i] = 0
+        if len(tab[1]) == pos+1:
+            tab[1][pos] = 0
+            return
+        id_neighbor = right_neighbor(tab, pos)
+        neighbor = 0 if len(tab[1]) == id_neighbor else tab[1][id_neighbor]            
+        if tab[0][pos] > tab[0][pos+1]:
+            if tab[0][pos] > neighbor: # cas en bas est le plus grand
+                tab[1][pos] = 0
+            else: # cas voisin est le plus grand (1)
+                tab[1][pos] = neighbor
+                apply_reverse_janvier(tab, pos+1)
         else:
-            if non_empty_size(std_tab[0]) == non_empty_size(std_tab[1]):
-                std_tab[1][i] = 0
-            else:
-                shift_max(std_tab, 0)
-        act -= 1
+            if tab[0][pos+1] > neighbor: # cas coin est le plus grand
+                tab[1][pos] = tab[0][pos+1]
+                apply_reverse_janvier(tab, pos+1)
+            else: # cas voisin est le plus grand (2)
+                tab[1][pos] = neighbor
+                apply_reverse_janvier(tab, pos+1)
+
+    k = std_tab[0][0] if std_tab[1][0] == 0 else std_tab[1][0]
+    res: Chain = [0] * (k + 1)
+    if len(res) > 1:
+        res[1] = 1
+    while len(std_tab[0]) > 0 and k >0:
+        res[k] = translate_form(std_tab)
+        apply_reverse_janvier(std_tab, 0)
+        k -= 1
     return res
 
 
@@ -390,7 +386,7 @@ def janvier_insertion(p: Permutation) -> Tuple[STableau, STableau]:
     """
 
     def max_not_blacklisted(p: Permutation, blacklist: List[int]) -> Tuple[int, int]:
-        res, id_res = p[1], 1
+        res, id_res = 0, 0
         for i in p.keys:
             if not i in blacklist and p[i] > res:
                 res, id_res = p[i], i

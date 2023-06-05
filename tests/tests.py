@@ -9,6 +9,7 @@ from algo import (
     evacuation,
     permutation_to_chains_gd,
     chain_to_path_tableau,
+    standard_YFT_to_chain
 )
 
 testV1 = [3, 8, 4, 1, 2]
@@ -68,4 +69,7 @@ p = Permutation([3, 1, 4, 2])
 p3 = Permutation([7, 3, 1, 5, 8, 4, 6, 2])
 # print(roby_insertion(p3))
 
-print(evacuation(([[7, 3], [6, 4], [5, 0], [2, 1]])))
+# print(evacuation(([[7, 3], [6, 4], [5, 0], [2, 1]])))
+print(standard_YFT_to_chain(([3, 6, 1, 4, 2], [7, 0, 5, 0, 0])))
+print(standard_YFT_to_chain(([2, 6, 4, 1], [8, 7, 5, 3])))
+print(standard_YFT_to_chain(([5, 1, 4, 2], [8, 7, 6, 3])))

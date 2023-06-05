@@ -28,6 +28,15 @@ class Permutation:
         for i in range(-1, -self._permu_matrix.shape[0]-1, -1):
             print(self._permu_matrix[i])
 
+    def random(size: int, number: int) -> np.ndarray[np.ndarray[int]]:
+        res = np.zeros(number)
+        rng = np.random.default_rng()
+        for i in range(number):
+            res[i] = rng.permutation(size)
+        res
+
+
+
     @property
     def size(self):
         return len(self._permu_dict.keys())
