@@ -1,26 +1,26 @@
 import sys
-
-sys.path.append("/home/louis/workspace/robinson-shensted")
 from typing import List, Tuple
 import numpy as np
+
+sys.path.append("/home/louis/workspace/robinson-shensted")
 from algo.Permutation import Permutation
 
-Involution = Tuple[List[int], List[int]]
+Involution = List[List[int]]
 Tableau = Tuple[List[int], List[int]]
 STableau = Tuple[List[int], List[int]]
 Chain = List[int]
-InvolutionV2 = List[List[int]]
 
-
-def roby_insertion(p: Permutation) -> Tuple[InvolutionV2, InvolutionV2]:
+def roby_insertion(p: Permutation) -> Tuple[Involution, Involution]:
     """Roby's Insertion algorithm.
     Relation: Permutation p -> Involutions (inv1, inv2)
     0 stands for empty.
     >>> roby_insertion(Permutation([2, 7, 1, 5, 6, 4, 3]))
-    (([7, 6, 5, 2], [3, 4, 0, 1]), ([2, 6, 5, 1], [3, 7, 0, 4]))
+    ([[7, 3], [6, 4], [5, 0], [2, 1]], [[2, 3], [6, 7], [5, 0], [1, 4]])
     """
 
-    def insert(element: int, key: int, inv1: InvolutionV2, inv2: InvolutionV2, id_c: int) -> None:
+    def insert(
+        element: int, key: int, inv1: Involution, inv2: Involution, id_c: int
+    ) -> None:
         if element < inv1[id_c][0]:
             if inv1[id_c][1] == 0:
                 inv1[id_c][1] = element
@@ -28,17 +28,17 @@ def roby_insertion(p: Permutation) -> Tuple[InvolutionV2, InvolutionV2]:
             else:
                 temp = inv1[id_c][1]
                 inv1[id_c][1] = element
-                if len(inv1) == id_c+1:
+                if len(inv1) == id_c + 1:
                     inv1.append([temp, 0])
                     inv2.append([key, 0])
                 else:
-                    insert(temp, key, inv1, inv2, id_c+1)
+                    insert(temp, key, inv1, inv2, id_c + 1)
         else:
             inv1.insert(id_c, [element, 0])
             inv2.insert(id_c, [key, 0])
 
-    inv1: InvolutionV2 = [[p[1], 0]]
-    inv2: InvolutionV2 = [[1, 0]]
+    inv1: Involution = [[p[1], 0]]
+    inv2: Involution = [[1, 0]]
     for k in p.keys[1:]:
         insert(p[k], k, inv1, inv2, 0)
     return inv1, inv2
@@ -51,34 +51,34 @@ def evacuation(inv: Involution) -> Tableau:
     Attention on suppose ici que p[0][0] contienne le nombre d'elements de p
     0 stands for empty
 
-    >>> evacuation([[7, 6, 5, 2], [3, 4, 0, 1]])
+    >>> evacuation(([[7, 3], [6, 4], [5, 0], [2, 1]]))
     ([3, 5, 7, 1], [4, 6, 0, 2])
     """
 
     def find_evac_point(p: Involution) -> Tuple[int, int, int]:
-        def compare_neighbors(i: int, j: int, p: Involution) -> Tuple[int, int]:
-            if p[i + 1][j] == 0:  # ligne dessus vide
-                p[i][j] = 0
-                return i, j
+        def compare_neighbors(i: int, j: int, inv: Involution) -> Tuple[int, int]:
+            if inv[i][j + 1] == 0:  # ligne dessus vide
+                inv[i][j] = 0
+                return j, i
             if (
-                len(p[i]) <= j + 1 or p[i][j + 1] == 0 or p[i + 1][j] > p[i][j + 1]
+                len(inv) == i + 1 or inv[i+1][j] == 0 or inv[i][j+ 1] > inv[i+1][j]
             ):  # fin de la liste ou voisin droite vide ou voisin dessus > voisin droite
-                p[i][j] = p[i + 1][j]
-                p[i + 1][j] = 0
-                return i + 1, j
+                inv[i][j] = inv[i][j+1]
+                inv[i][j+1] = 0
+                return j+1, i
             else:  # voisin dessus <= voisin droite
-                p[i][j] = p[i][j + 1]
-                p[i][j + 1] = 0
-                return compare_neighbors(i, j + 1, p)
+                inv[i][j] = inv[i+1][j]
+                inv[i+1][j] = 0
+                return compare_neighbors(i+1, j, inv)
 
-        j = 0
-        while p[0][j] == 0:
-            j += 1
-        tmp = p[0][j]
-        x, y = compare_neighbors(0, j, p)
+        i = 0
+        while inv[i][0] == 0:
+            i += 1
+        tmp = inv[i][0]
+        x, y = compare_neighbors(i, 0, inv)
         return tmp, x, y
 
-    path_tableau: Tableau = ([0] * len(inv[0]), [0] * len(inv[1]))
+    path_tableau: Tableau = ([0] * len(inv), [0] * len(inv))
     for i in range(inv[0][0]):
         e, x, y = find_evac_point(inv)
         path_tableau[x][y] = e
@@ -94,27 +94,33 @@ def chain_to_path_tableau(p: Chain) -> Tableau:
     """
 
     def path_tableau_rules(
-        a: List[int], b: List[int], k: int, l: int
+        a: List[int], b: List[int], k: int, l: int, flag: bool
     ) -> Tuple[int, int, List[int]]:
         match a[k]:
             case 1:
-                if b[l] == 2 or b[l] == 0:  # ajout d'un 1
+                if flag:
                     a[k] = 0
                     return 0, k, a
-                return path_tableau_rules(a, b, k + 1, l + 1)
+                if len(b) == l:
+                    return path_tableau_rules(a, b, 0, 0, True)
+                elif b[l] == 2 or b[l] == 0:  # ajout d'un 1
+                    a[k] = 0
+                    return 0, k, a
+                return path_tableau_rules(a, b, k + 1, l + 1, flag)
             case 2:
                 if b[l] == 1 or b[l] == 0:  # transformation d'un 1
                     a[k] = 1
                     return 1, k, a
                 else:
-                    return path_tableau_rules(a, b, k + 1, l + 1)
-        return path_tableau_rules(a, b, k + 1, l)
+                    return path_tableau_rules(a, b, k + 1, l + 1, flag)
+            case _:
+                return path_tableau_rules(a, b, k + 1, l, flag)
 
     act = [int(i) for i in str(p[-1])]
     tab: Tableau = ([0] * len(act), [0] * len(act))
     s = sum(act)
     for k in range(-2, -len(p) - 1, -1):
-        i, j, act = path_tableau_rules(act, [int(h) for h in str(p[k])], 0, 0)
+        i, j, act = path_tableau_rules(act, [int(h) for h in str(p[k])], 0, 0, False)
         tab[i][j] = s
         s -= 1
     return tab
