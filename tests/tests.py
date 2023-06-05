@@ -75,4 +75,5 @@ print(standard_YFT_to_chain(([3, 6, 1, 4, 2], [7, 0, 5, 0, 0])))
 print(standard_YFT_to_chain(([2, 6, 4, 1], [8, 7, 5, 3])))
 print(standard_YFT_to_chain(([5, 1, 4, 2], [8, 7, 6, 3])))
 
-print(random_permutations(23, 456))
+dataA = random_permutations(16, 50)
+print(dataA)

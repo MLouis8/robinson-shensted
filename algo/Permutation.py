@@ -53,5 +53,6 @@ def random_permutations(size: int, number: int) -> List[np.ndarray[Any, Any]]:
     res = []
     rng = np.random.default_rng()
     for i in range(number):
-        res.append(rng.permutation(size)+1)
+        #res.append(rng.permutation(size)+1)
+        res.append(np.random.permutation(size)+1)
     return res
