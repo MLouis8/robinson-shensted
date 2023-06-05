@@ -17,7 +17,8 @@ from .RS_suites_extraites import (
     taille_plus_grande_ssc,
 )
 from .check import check_young_fibo_paths, check_standard_yf_tableau, check_involution
-from .display import display_involution
+from .display import display_involution, display_for_cpp, display_for_python
+
 __all__ = [
     "Permutation",
     "roby_insertion",
