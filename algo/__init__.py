@@ -1,4 +1,4 @@
-from .Permutation import Permutation
+from .Permutation import Permutation, random_permutations
 from .algorithms import (
     roby_insertion,
     evacuation,
