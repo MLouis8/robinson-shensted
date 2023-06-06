@@ -14,7 +14,7 @@ class Permutation:
                         "Permutation not valid. Values must be within [1, len(array)]."
                     )
                 if i in mem:
-                    #print(i, mem)
+                    # print(i, mem)
                     raise ValueError("Permutation not valid. Values must appear once.")
                 mem.append(i)
 

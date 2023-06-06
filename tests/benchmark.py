@@ -126,6 +126,7 @@ for t in t20:
 """
 ####
 
+
 def timer_roby(n):
     TEST_CODE_4 = """
 for p in p4:
@@ -152,8 +153,9 @@ for p in p20:
         timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
-        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n),
     ]
+
 
 def timer_janvier(n):
     TEST_CODE_4 = """
@@ -181,8 +183,9 @@ for p in p20:
         timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
-        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n),
     ]
+
 
 def timer_permu2chains(n):
     TEST_CODE_4 = """
@@ -210,8 +213,9 @@ for p in p20:
         timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
         timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
-        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n),
     ]
+
 
 def timer_permu2chains_gd(n):
     TEST_CODE_4 = """
@@ -239,8 +243,9 @@ for p in p20:
         timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
         # timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n), python limits reached
         # timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
-        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n),
     ]
+
 
 def time_roby_insertion(n=1):
     tab = timer_roby(n)
@@ -252,6 +257,7 @@ def time_roby_insertion(n=1):
     print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
     print(f"1000 20-permutations: {tab[5]:2.5e}, {n} time")
 
+
 def time_janvier_insertion(n=1):
     tab = timer_janvier(n)
     print("Janvier Insertion algorithm:")
@@ -262,6 +268,7 @@ def time_janvier_insertion(n=1):
     print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
     print(f"1000 20-permutations: {tab[5]:2.5e}, {n} time")
 
+
 def time_permutation_to_chains(n=1):
     tab = timer_permu2chains(n)
     print("Permutation to YF chains algorithm:")
@@ -271,6 +278,7 @@ def time_permutation_to_chains(n=1):
     print(f"50 32-permutations: {tab[3]:2.5e}, {n} time")
     print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
     print(f"1000 20-permutations: {tab[5]:2.5e}, {n} time")
+
 
 def compare_permutation_to_chains(n=1):
     tab1 = timer_permu2chains(n)

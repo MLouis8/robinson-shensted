@@ -34,7 +34,7 @@ def display_for_python(smth):
 
 def display_for_cpp(smth):
     print(" {", end="")
-    for p in smth [:-1]:
+    for p in smth[:-1]:
         print("{", end="")
         for e in p[:-1]:
             print(e, end=", ")

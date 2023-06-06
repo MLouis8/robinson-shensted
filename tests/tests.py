@@ -15,9 +15,14 @@ from algo import (
     random_permutations,
     display_for_cpp,
     display_for_python,
-    janvier_insertion
+    janvier_insertion,
 )
-from benchmark import time_roby_insertion, time_janvier_insertion, time_permutation_to_chains, compare_permutation_to_chains
+from benchmark import (
+    time_roby_insertion,
+    time_janvier_insertion,
+    time_permutation_to_chains,
+    compare_permutation_to_chains,
+)
 
 testV1 = [3, 8, 4, 1, 2]
 testC1 = [[1, 2], [3, 4], [8]]
