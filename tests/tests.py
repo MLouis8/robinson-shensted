@@ -1,6 +1,8 @@
 import sys
 import numpy as np
+import json
 
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
 sys.path.append("/home/louis/workspace/robinson-shensted")
 from algo import (
     Permutation,
@@ -13,7 +15,9 @@ from algo import (
     random_permutations,
     display_for_cpp,
     display_for_python,
+    janvier_insertion
 )
+from benchmark import time_roby_insertion, time_janvier_insertion, time_permutation_to_chains
 
 testV1 = [3, 8, 4, 1, 2]
 testC1 = [[1, 2], [3, 4], [8]]
@@ -77,13 +81,25 @@ p3 = Permutation([7, 3, 1, 5, 8, 4, 6, 2])
 # print(standard_YFT_to_chain(([2, 6, 4, 1], [8, 7, 5, 3])))
 # print(standard_YFT_to_chain(([5, 1, 4, 2], [8, 7, 6, 3])))
 
-dataA = random_permutations(4, 10)
-dataB = random_permutations(8, 10)
-dataC = random_permutations(16, 10)
-dataD = random_permutations(32, 10)
-dataE = random_permutations(64, 10)
-dataF = random_permutations(20, 200)
+# dataA = random_permutations(4, 50)
+# dataB = random_permutations(8, 50)
+# dataC = random_permutations(16, 50)
+# dataD = random_permutations(32, 50)
+# dataE = random_permutations(64, 50)
+# dataF = random_permutations(20, 1000)
 
+# data = {
+#     'p4':  dataA,
+#     'p8':  dataB,
+#     'p16': dataC,
+#     'p32': dataD,
+#     'p64': dataE,
+#     'p20': dataF
+# }
 
-display_for_python(dataA)
-display_for_cpp(dataA)
+# with open('data.json', 'w', encoding='utf-8') as f:
+#     json.dump(data, f, default=int, ensure_ascii=False, indent=4)
+
+# time_roby_insertion()
+# time_janvier_insertion()
+# time_permutation_to_chains()

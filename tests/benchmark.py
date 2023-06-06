@@ -1,38 +1,96 @@
 import timeit
 import sys
 
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
 sys.path.append("/home/louis/workspace/robinson-shensted")
 
+## GLOBAL VAR ##
 
-def time_roby_insertion():
-    SETUP_CODE = """
+SETUP_CODE_4 = """
 import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
 sys.path.append("/home/louis/workspace/robinson-shensted")
-from algo import Permutation, roby_insertion
-t4 = [[2, 4, 1, 3], [3, 1, 4, 2], [1, 3, 4, 2], [2, 3, 4, 1], [1, 4, 3, 2], [4, 3, 2, 1], [2, 1, 4, 3], [1, 4, 3, 2], [4, 1, 3, 2], [3, 2, 1, 4]]
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
+
+data = json.load(open('data/data.json', 'r'))
+t4 = data['p4']
 p4 = []
 for t in t4:
     p4.append(Permutation(t))
+"""
 
-t8 = [[6, 8, 4, 5, 2, 7, 3, 1], [5, 7, 4, 1, 8, 6, 2, 3], [8, 2, 5, 6, 1, 3, 7, 4], [7, 2, 5, 6, 8, 4, 3, 1], [1, 5, 2, 4, 7, 8, 3, 6], [2, 3, 1, 4, 6, 8, 5, 7], [5, 4, 6, 2, 7, 1, 3, 8], [4, 6, 2, 1, 7, 8, 3, 5], [6, 4, 2, 7, 5, 8, 3, 1], [8, 2, 4, 6, 5, 7, 3, 1]]
+SETUP_CODE_8 = """
+import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
+
+data = json.load(open('data/data.json', 'r'))
+t8 = data['p8']
 p8 = []
 for t in t8:
     p8.append(Permutation(t))
-t16 = [[10, 11, 9, 1, 12, 2, 7, 15, 5, 8, 16, 3, 14, 6, 4, 13], [12, 3, 4, 10, 2, 8, 13, 15, 14, 1, 5, 9, 6, 7, 16, 11], [15, 12, 16, 3, 6, 11, 2, 7, 1, 10, 14, 8, 5, 13, 4, 9], [6, 14, 1, 13, 10, 8, 2, 9, 11, 15, 4, 16, 3, 7, 12, 5], [10, 6, 12, 5, 3, 8, 7, 4, 9, 2, 15, 11, 14, 1, 13, 16], [7, 13, 16, 11, 3, 14, 2, 9, 12, 10, 8, 5, 15, 6, 1, 4], [4, 10, 14, 15, 16, 2, 7, 8, 12, 1, 9, 6, 11, 3, 5, 13], [13, 7, 16, 4, 14, 8, 2, 9, 10, 12, 11, 6, 3, 15, 5, 1], [12, 5, 3, 4, 15, 10, 16, 13, 11, 8, 9, 1, 7, 6, 14, 2], [6, 9, 1, 8, 10, 15, 12, 13, 5, 16, 3, 14, 4, 7, 11, 2]]
+"""
+
+SETUP_CODE_16 = """
+import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
+
+data = json.load(open('data/data.json', 'r'))
+t16 = data['p16']
 p16 = []
 for t in t16:
     p16.append(Permutation(t))
+"""
 
-t32 = [[5, 21, 23, 26, 17, 6, 28, 2, 12, 18, 9, 10, 30, 11, 8, 27, 1, 22, 13, 32, 31, 3, 19, 4, 20, 16, 14, 25, 24, 15, 29, 7], [30, 11, 6, 1, 22, 31, 7, 28, 27, 4, 19, 32, 26, 23, 17, 8, 29, 12, 5, 20, 24, 3, 9, 21, 16, 18, 15, 2, 25, 14, 13, 10], [6, 25, 27, 28, 10, 13, 30, 9, 1, 3, 18, 29, 22, 15, 21, 31, 23, 2, 17, 12, 7, 32, 19, 16, 5, 20, 26, 8, 11, 4, 14, 24], [5, 10, 1, 29, 20, 9, 32, 30, 12, 7, 28, 4, 11, 27, 24, 19, 22, 26, 3, 15, 16, 2, 31, 14, 13, 8, 23, 17, 25, 6, 18, 21], [24, 5, 16, 29, 12, 17, 8, 26, 1, 6, 2, 15, 23, 25, 22, 32, 10, 18, 11, 21, 9, 28, 27, 20, 4, 19, 7, 31, 30, 3, 14, 13], [3, 20, 25, 18, 4, 7, 2, 27, 31, 9, 32, 10, 21, 6, 8, 28, 13, 17, 19, 26, 5, 12, 1, 22, 29, 14, 16, 15, 23, 30, 11, 24], [4, 15, 25, 30, 17, 14, 3, 7, 26, 5, 27, 1, 2, 19, 11, 28, 13, 21, 24, 6, 23, 9, 10, 12, 29, 8, 22, 16, 18, 31, 32, 20], [28, 30, 31, 27, 9, 13, 1, 21, 3, 16, 19, 17, 25, 8, 5, 26, 18, 24, 12, 23, 6, 15, 11, 20, 2, 14, 10, 32, 4, 22, 29, 7], [2, 19, 17, 25, 24, 21, 10, 8, 27, 5, 15, 22, 28, 4, 14, 7, 30, 23, 13, 32, 31, 1, 11, 6, 29, 9, 12, 18, 3, 16, 20, 26]]
+SETUP_CODE_32 = """
+import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
+
+data = json.load(open('data/data.json', 'r'))
+t32 = data['p32']
 p32 = []
 for t in t32:
     p32.append(Permutation(t))
+"""
+SETUP_CODE_64 = """
+import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
 
-t64 = [[36, 28, 11, 43, 1, 55, 15, 6, 50, 54, 20, 30, 25, 7, 8, 32, 58, 19, 24, 4, 31, 42, 53, 23, 16, 40, 17, 14, 37, 9, 49, 39, 63, 45, 26, 48, 27, 29, 64, 56, 2, 34, 46, 3, 59, 13, 44, 38, 51, 52, 61, 12, 18, 35, 5, 41, 62, 60, 10, 47, 33, 57, 21, 22], [25, 27, 23, 45, 51, 57, 61, 38, 15, 42, 58, 30, 46, 36, 17, 52, 49, 60, 28, 12, 16, 20, 63, 7, 64, 56, 26, 55, 19, 48, 9, 33, 53, 2, 6, 47, 14, 39, 22, 34, 32, 59, 11, 43, 24, 4, 44, 31, 13, 5, 8, 1, 54, 3, 41, 29, 37, 50, 18, 21, 10, 40, 35, 62], [2, 3, 61, 4, 22, 35, 31, 14, 64, 62, 20, 5, 7, 47, 8, 27, 59, 15, 39, 60, 9, 44, 53, 58, 19, 10, 42, 45, 32, 30, 38, 49, 46, 37, 17, 13, 24, 51, 34, 50, 40, 28, 26, 21, 54, 36, 48, 52, 23, 43, 18, 41, 33, 1, 6, 25, 56, 29, 16, 63, 55, 57, 12, 11], [9, 56, 40, 43, 61, 27, 18, 62, 42, 3, 32, 22, 16, 52, 53, 4, 10, 59, 28, 55, 29, 11, 15, 6, 41, 51, 57, 17, 12, 8, 13, 33, 47, 38, 58, 36, 48, 64, 19, 23, 24, 46, 20, 5, 21, 37, 50, 1, 39, 7, 49, 44, 34, 30, 14, 54, 31, 25, 26, 60, 2, 35, 45, 63], [2, 27, 63, 28, 57, 26, 58, 14, 62, 7, 32, 15, 19, 51, 60, 1, 37, 56, 16, 17, 4, 25, 3, 24, 50, 49, 18, 40, 22, 39, 10, 31, 64, 9, 36, 21, 45, 13, 43, 61, 20, 41, 35, 30, 46, 6, 52, 11, 38, 42, 53, 34, 48, 47, 23, 55, 12, 29, 33, 59, 5, 54, 44, 8], [33, 1, 63, 26, 43, 45, 22, 23, 31, 17, 54, 11, 52, 39, 13, 10, 37, 16, 62, 46, 35, 32, 24, 14, 44, 7, 56, 60, 50, 20, 2, 57, 41, 6, 5, 51, 61, 48, 12, 59, 4, 3, 21, 8, 42, 15, 55, 27, 64, 53, 36, 29, 49, 58, 9, 34, 40, 38, 19, 47, 18, 30, 25, 28], [39, 6, 38, 62, 5, 19, 37, 15, 34, 64, 52, 54, 25, 7, 12, 28, 47, 33, 61, 17, 18, 2, 40, 58, 11, 14, 16, 63, 43, 53, 59, 9, 42, 51, 20, 30, 10, 24, 41, 27, 35, 31, 48, 46, 60, 4, 36, 49, 22, 29, 13, 1, 3, 44, 45, 56, 21, 55, 57, 26, 32, 8, 23, 50], [1, 64, 58, 37, 25, 22, 56, 50, 34, 47, 24, 6, 4, 61, 33, 49, 48, 63, 23, 11, 44, 3, 14, 38, 27, 54, 31, 51, 21, 18, 55, 35, 29, 26, 8, 46, 9, 59, 53, 16, 2, 12, 15, 30, 20, 19, 57, 62, 7, 42, 43, 10, 13, 28, 52, 32, 41, 17, 36, 5, 45, 60, 39, 40]]
+data = json.load(open('data/data.json', 'r'))
+t64 = data['p64']
 p64 = []
 for t in t64:
     p64.append(Permutation(t))
 """
+
+SETUP_CODE_20 = """
+import sys
+import json
+sys.path.append("/Users/louismilhaud/workspace/robinson-shensted")
+sys.path.append("/home/louis/workspace/robinson-shensted")
+from algo import Permutation, roby_insertion, janvier_insertion, permutation_to_chains
+
+data = json.load(open('data/data.json', 'r'))
+t20 = data['p20']
+p20 = []
+for t in t20:
+    p20.append(Permutation(t))
+"""
+####
+
+def timer_roby(n):
     TEST_CODE_4 = """
 for p in p4:
     _, _ = roby_insertion(p)"""
@@ -48,21 +106,104 @@ for p in p32:
     TEST_CODE_64 = """
 for p in p64:
     _, _ = roby_insertion(p)"""
+    TEST_CODE_20 = """
+for p in p20:
+    _, _ = roby_insertion(p)"""
 
     return [
-        timeit.Timer(setup=SETUP_CODE, stmt=TEST_CODE_4).timeit(number=1),
-        timeit.Timer(setup=SETUP_CODE, stmt=TEST_CODE_8).timeit(number=1),
-        timeit.Timer(setup=SETUP_CODE, stmt=TEST_CODE_16).timeit(number=1),
-        timeit.Timer(setup=SETUP_CODE, stmt=TEST_CODE_32).timeit(number=1),
-        timeit.Timer(setup=SETUP_CODE, stmt=TEST_CODE_64).timeit(number=1),
+        timeit.Timer(setup=SETUP_CODE_4, stmt=TEST_CODE_4).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_8, stmt=TEST_CODE_8).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
     ]
 
+def timer_janvier(n):
+    TEST_CODE_4 = """
+for p in p4:
+    _, _ = janvier_insertion(p)"""
+    TEST_CODE_8 = """
+for p in p8:
+    _, _ = janvier_insertion(p)"""
+    TEST_CODE_16 = """
+for p in p16:
+    _, _ = janvier_insertion(p)"""
+    TEST_CODE_32 = """
+for p in p32:
+    _, _ = janvier_insertion(p)"""
+    TEST_CODE_64 = """
+for p in p64:
+    _, _ = janvier_insertion(p)"""
+    TEST_CODE_20 = """
+for p in p20:
+    _, _ = janvier_insertion(p)"""
+
+    return [
+        timeit.Timer(setup=SETUP_CODE_4, stmt=TEST_CODE_4).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_8, stmt=TEST_CODE_8).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+    ]
+
+def timer_permu2chains(n):
+    TEST_CODE_4 = """
+for p in p4:
+    _, _ = permutation_to_chains(p)"""
+    TEST_CODE_8 = """
+for p in p8:
+    _, _ = permutation_to_chains(p)"""
+    TEST_CODE_16 = """
+for p in p16:
+    _, _ = permutation_to_chains(p)"""
+    TEST_CODE_32 = """
+for p in p32:
+    _, _ = permutation_to_chains(p)"""
+    TEST_CODE_64 = """
+for p in p64:
+    _, _ = permutation_to_chains(p)"""
+    TEST_CODE_20 = """
+for p in p20:
+    _, _ = permutation_to_chains(p)"""
+
+    return [
+        timeit.Timer(setup=SETUP_CODE_4, stmt=TEST_CODE_4).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_8, stmt=TEST_CODE_8).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_16, stmt=TEST_CODE_16).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_32, stmt=TEST_CODE_32).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_64, stmt=TEST_CODE_64).timeit(number=n),
+        timeit.Timer(setup=SETUP_CODE_20, stmt=TEST_CODE_20).timeit(number=n)
+    ]
+
+def time_roby_insertion(n=1):
+    tab = timer_roby(n)
+    print("Roby Insertion algorithm:")
+    print(f"50 4-permutations: {tab[0]:2.5e}, {n} time")
+    print(f"50 8-permutations: {tab[1]:2.5e}, {n} time")
+    print(f"50 16-permutations: {tab[2]:2.5e}, {n} time")
+    print(f"50 32-permutations: {tab[3]:2.5e}, {n} time")
+    print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
+    print(f"1000 20-permutations: {tab[4]:2.5e}, {n} time")
 
 
-print("Roby Insertion algorithm:")
-print(f"10 4-permutations: {time_roby_insertion()[0]:2.5e}")
-print(f"10 8-permutations: {time_roby_insertion()[1]:2.5e}")
-print(f"10 16-permutations: {time_roby_insertion()[2]:2.5e}")
-print(f"10 32-permutations: {time_roby_insertion()[3]:2.5e}")
-print(f"10 64-permutations: {time_roby_insertion()[4]:2.5e}")
+def time_janvier_insertion(n=1):
+    tab = timer_janvier(n)
+    print("Janvier Insertion algorithm:")
+    print(f"50 4-permutations: {tab[0]:2.5e}, {n} time")
+    print(f"50 8-permutations: {tab[1]:2.5e}, {n} time")
+    print(f"50 16-permutations: {tab[2]:2.5e}, {n} time")
+    print(f"50 32-permutations: {tab[3]:2.5e}, {n} time")
+    print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
+    print(f"1000 20-permutations: {tab[4]:2.5e}, {n} time")
 
+def time_permutation_to_chains(n=1):
+    tab = timer_permu2chains(n)
+    print("Permutation to YF chains algorithm:")
+    print(f"50 4-permutations: {tab[0]:2.5e}, {n} time")
+    print(f"50 8-permutations: {tab[1]:2.5e}, {n} time")
+    print(f"50 16-permutations: {tab[2]:2.5e}, {n} time")
+    print(f"50 32-permutations: {tab[3]:2.5e}, {n} time")
+    print(f"50 64-permutations: {tab[4]:2.5e}, {n} time")
+    print(f"1000 20-permutations: {tab[4]:2.5e}, {n} time")
