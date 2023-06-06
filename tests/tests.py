@@ -17,7 +17,7 @@ from algo import (
     display_for_python,
     janvier_insertion
 )
-from benchmark import time_roby_insertion, time_janvier_insertion, time_permutation_to_chains
+from benchmark import time_roby_insertion, time_janvier_insertion, time_permutation_to_chains, compare_permutation_to_chains
 
 testV1 = [3, 8, 4, 1, 2]
 testC1 = [[1, 2], [3, 4], [8]]
@@ -103,3 +103,5 @@ p3 = Permutation([7, 3, 1, 5, 8, 4, 6, 2])
 # time_roby_insertion()
 # time_janvier_insertion()
 # time_permutation_to_chains()
+
+compare_permutation_to_chains()
